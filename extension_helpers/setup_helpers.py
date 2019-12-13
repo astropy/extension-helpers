@@ -24,21 +24,15 @@ __all__ = ['get_extensions']
 
 def get_extensions(srcdir='.'):
     """
-    Collates all of the information for building all subpackages
-    and returns a dictionary of keyword arguments that can
-    be passed directly to `distutils.setup`.
+    Collect all extensions from Cython files and ``setup_package.py`` files.
 
-    The purpose of this function is to allow subpackages to update the
-    arguments to the package's ``setup()`` function in its setup.py
-    script, rather than having to specify all extensions/package data
-    directly in the ``setup.py``.  See Astropy's own
-    ``setup.py`` for example usage and the Astropy development docs
-    for more details.
+    If numpy is importable, the numpy include path will be added to all Cython
+    extensions which are automatically generated.
 
     This function obtains that information by iterating through all
     packages in ``srcdir`` and locating a ``setup_package.py`` module.
     This module can contain the ``get_extensions()`` function which returns
-    a list of `distutils.extension.Extension` objects.
+    a list of `distutils.core.Extension` objects.
 
     """
     ext_modules = []
@@ -60,9 +54,14 @@ def get_extensions(srcdir='.'):
 
     # Locate any .pyx files not already specified, and add their extensions in.
     # The default include dirs include numpy to facilitate numerical work.
-    import numpy
-    ext_modules.extend(get_cython_extensions(srcdir, packages, ext_modules,
-                                             [numpy.get_include()]))
+    includes = []
+    try:
+        import numpy
+        includes = [numpy.get_include()]
+    except ImportError:
+        pass
+
+    ext_modules.extend(get_cython_extensions(srcdir, packages, ext_modules, includes))
 
     # Now remove extensions that have the special name 'skip_cython', as they
     # exist Only to indicate that the cython extensions shouldn't be built
