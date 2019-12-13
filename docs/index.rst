@@ -15,6 +15,5 @@ dependency in ``pyproject.toml`` files.
    :maxdepth: 1
 
    using.rst
-   basic.rst
    openmp.rst
    api.rst
