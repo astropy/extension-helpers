@@ -4,8 +4,8 @@ extension-helpers
 .. image:: https://travis-ci.org/astropy/extension-helpers.svg
   :target: https://travis-ci.org/astropy/extension-helpers
 
-.. image:: https://ci.appveyor.com/api/projects/status/rt9161t9mhx02xp7/branch/master?svg=true
-  :target: https://ci.appveyor.com/project/Astropy/extension-helpers
+.. image:: https://circleci.com/gh/astropy/extension-helpers.svg?style=svg
+  :target: https://circleci.com/gh/astropy/extension-helpers
 
 .. image:: https://codecov.io/gh/astropy/extension-helpers/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/astropy/extension-helpers
