@@ -17,5 +17,4 @@ dependency in ``pyproject.toml`` files.
    using.rst
    basic.rst
    openmp.rst
-   known_issues.rst
    api.rst

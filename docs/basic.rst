@@ -1,3 +1,5 @@
+.. _defining-extensions:
+
 Defining extensions
 ===================
 
@@ -14,9 +16,7 @@ used to collect package extensions. Defining functions is then done in two ways:
 
 In the second case, the idea is that for large packages, extensions can be defined
 in the relevant sub-packages rather than having to all be listed in the main
-``setup.py`` file. For packages with only a couple of extensions, using
-extension-helpers is not really necessary since you can just define these directly
-in ``setup.py``.
+``setup.py`` file.
 
 To use this, you should modify your ``setup.py`` file to use
 :func:`~extension_helpers.setup_helpers.get_extensions`  as follows::
