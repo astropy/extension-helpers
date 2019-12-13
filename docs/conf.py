@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 project = 'extension-helpers'
-copyright = '2014, The Astropy Developers'
+copyright = '2019, The Astropy Developers'
 author = 'The Astropy Developers'
 
 # We need to get the version number from the package
@@ -15,13 +15,11 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
-    'numpydoc',
+    'sphinx.ext.napoleon',
     'sphinx_automodapi.automodapi'
 ]
 
-numpydoc_show_class_members = False
-
-intersphinx_mapping = {'https://docs.python.org/': None}
+intersphinx_mapping = {'https://docs.python.org/3/': None}
 
 # The suffix(es) of source filenames.
 source_suffix = '.rst'
@@ -43,10 +41,12 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'bootstrap-astropy'
+html_theme = 'alabaster'
 
 html_theme_options = {
-    'logotext1': 'extension',  # white,  semi-bold
-    'logotext2': '-helpers',  # orange, light
-    'logotext3': ':docs'   # white,  light
-    }
+    "description": "A build time package to simplify C/Cython extensions.",
+    "code_font_family": "'Fira Code', monospace",
+    "github_user": "astropy",
+    "github_repo": "extension-helpers",
+    "sidebar_width": "300px"
+}

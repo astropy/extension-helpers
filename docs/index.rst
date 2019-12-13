@@ -1,3 +1,6 @@
+Extension Helpers
+=================
+
 The **extension-helpers** package includes convenience helpers to assist with
 building Python packages with compiled C/Cython extensions. It is developed by
 the Astropy project but is intended to be general and usable by any Python
@@ -12,7 +15,5 @@ dependency in ``pyproject.toml`` files.
    :maxdepth: 1
 
    using.rst
-   basic.rst
    openmp.rst
-   known_issues.rst
    api.rst
