@@ -145,6 +145,8 @@ script:
     - cd extension-helpers*
     - cp -RP ../../extension_helpers/tests extension_helpers/tests
     - pytest extension_helpers
+    - cd ../../
+    - rm -r dist
 
 after_success:
     - codecov
