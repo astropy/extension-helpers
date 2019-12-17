@@ -139,16 +139,17 @@ def walk_skip_hidden(top, onerror=None, followlinks=False):
 
 def write_if_different(filename, data):
     """
-    Write `data` to `filename`, if the content of the file is different.
-    This can be useful if e.g. generating .c or .h files, to make sure that
-    Python does not re-build unchanged files.
+    Write ``data`` to ``filename``, if the content of the file is different.
+
+    This can be useful if e.g. generating ``.c`` or ``.h`` files, to make sure
+    that Python does not re-build unchanged files.
 
     Parameters
     ----------
     filename : str
         The file name to be written to.
     data : bytes
-        The data to be written to `filename`.
+        The data to be written to ``filename``.
     """
 
     assert isinstance(data, bytes)
@@ -166,11 +167,13 @@ def write_if_different(filename, data):
 
 def import_file(filename, name=None):
     """
-    Imports a module from a single file as if it doesn't belong to a particular
-    package.
+    Imports a module from a single file without importing the package that
+    the file is in.
 
-    The returned module will have the optional ``name`` if given, or else
-    a name generated from the filename.
+    This is useful for cases where a file needs to be imported from
+    ``setup_package.py`` files without importing the parent package. The
+    returned module will have the optional ``name`` if given, or else a name
+    generated from the filename.
     """
     # Specifying a traditional dot-separated fully qualified name here
     # results in a number of "Parent module 'astropy' not found while

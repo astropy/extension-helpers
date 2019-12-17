@@ -50,3 +50,7 @@ html_theme_options = {
     "github_repo": "extension-helpers",
     "sidebar_width": "300px"
 }
+
+# Enable nitpicky mode to pick reference issues
+default_role = 'obj'
+nitpicky = True

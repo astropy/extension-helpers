@@ -32,7 +32,7 @@ def get_extensions(srcdir='.'):
     This function obtains that information by iterating through all
     packages in ``srcdir`` and locating a ``setup_package.py`` module.
     This module can contain the ``get_extensions()`` function which returns
-    a list of `distutils.core.Extension` objects.
+    a list of :class:`distutils.core.Extension` objects.
 
     """
     ext_modules = []
