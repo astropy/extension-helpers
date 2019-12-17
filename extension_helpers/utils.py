@@ -56,7 +56,7 @@ def silence():
     exception_occurred = False
     try:
         yield
-    except:
+    except:  # noqa
         exception_occurred = True
         # Go ahead and clean up so that exception handling can work normally
         sys.stdout = old_stdout

@@ -15,6 +15,7 @@ PY3_LT_35 = sys.version_info[0] == 3 and sys.version_info[1] < 5
 
 _state = None
 
+
 def test_add_openmp_flags_if_available():
 
     using_openmp = add_openmp_flags_if_available(Extension('test', []))
