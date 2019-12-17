@@ -8,7 +8,7 @@ whether OpenMP is available and produces executable code. To use this, edit the
 ``setup_package.py`` file where you define a C extension, import the helper
 function::
 
-    from extension_helpers.openmp_helpers import add_openmp_flags_if_available
+    from extension_helpers import add_openmp_flags_if_available
 
 then once you have defined the extension and before returning it, use it as::
 

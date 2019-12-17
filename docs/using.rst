@@ -32,7 +32,7 @@ in the relevant sub-packages rather than having to all be listed in the main
 To use this, you should modify your ``setup.py`` file to use
 :func:`~extension_helpers.get_extensions`  as follows::
 
-    from extension_helpers.setup_helpers import get_extensions
+    from extension_helpers import get_extensions
     ...
     setup(..., ext_modules=get_extensions())
 
