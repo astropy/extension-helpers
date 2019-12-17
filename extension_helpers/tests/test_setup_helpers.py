@@ -6,7 +6,7 @@ import pytest
 
 from textwrap import dedent
 
-from ..setup_helpers import get_extensions
+from .._setup_helpers import get_extensions
 
 from . import reset_distutils_log  # noqa
 from . import run_setup, cleanup_import
@@ -82,7 +82,7 @@ def _extension_test_package(tmpdir, request, extension_type='c',
         from os.path import join
         from setuptools import setup, find_packages
         sys.path.insert(0, r'{extension_helpers_path}')
-        from extension_helpers.setup_helpers import get_extensions
+        from extension_helpers import get_extensions
 
         setup(
             name='apyhtest_eva',

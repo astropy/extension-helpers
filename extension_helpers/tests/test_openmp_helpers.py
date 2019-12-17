@@ -5,18 +5,19 @@ from copy import deepcopy
 from importlib import machinery
 from distutils.core import Extension
 
-from ..openmp_helpers import add_openmp_flags_if_available, generate_openmp_enabled_py
+import pytest
 
-IS_TRAVIS_LINUX = os.environ.get('TRAVIS_OS_NAME', None) == 'linux'
-IS_TRAVIS_OSX = os.environ.get('TRAVIS_OS_NAME', None) == 'osx'
-IS_APPVEYOR = os.environ.get('APPVEYOR', None) == 'True'
-OPENMP_EXPECTED = os.environ.get('OPENMP_EXPECTED', False) == 'True'
-PY3_LT_35 = sys.version_info[0] == 3 and sys.version_info[1] < 5
-
-_state = None
+from .._openmp_helpers import add_openmp_flags_if_available, generate_openmp_enabled_py
 
 
-def test_add_openmp_flags_if_available():
+@pytest.fixture
+def openmp_expected(request):
+    openmp_expected = request.config.getoption("--openmp-expected")
+    if openmp_expected is not None:
+        return openmp_expected.lower() == 'true'
+
+
+def test_add_openmp_flags_if_available(openmp_expected):
 
     using_openmp = add_openmp_flags_if_available(Extension('test', []))
 
@@ -24,13 +25,11 @@ def test_add_openmp_flags_if_available():
     # MacOS X usually it will not work but this will depend on the compiler).
     # Having this is useful because we'll find out if OpenMP no longer works
     # for any reason on platforms on which it does work at the time of writing.
-    if OPENMP_EXPECTED:
-        assert using_openmp
-    else:
-        assert not using_openmp
+    if openmp_expected is not None:
+        assert openmp_expected is using_openmp
 
 
-def test_generate_openmp_enabled_py():
+def test_generate_openmp_enabled_py(openmp_expected):
 
     # Test file generation
     generate_openmp_enabled_py('')
@@ -46,7 +45,5 @@ def test_generate_openmp_enabled_py():
     # Test is_openmp_enabled()
     assert isinstance(is_openmp_enabled, bool)
 
-    if OPENMP_EXPECTED:
-        assert is_openmp_enabled
-    else:
-        assert not is_openmp_enabled
+    if openmp_expected is not None:
+        assert openmp_expected is is_openmp_enabled
