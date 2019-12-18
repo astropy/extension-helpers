@@ -13,7 +13,7 @@ jobs:
     coverage: codecov
     envs:
     # Code style
-    - linux: pycodestyle
+    - linux: style
     # Standard tests
     - linux: py36-test
     - linux: py37-test
