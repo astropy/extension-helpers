@@ -14,6 +14,8 @@ jobs:
     envs:
     # Code style
     - linux: style
+    # Docs
+    - linux: build_docs
     # Standard tests
     - linux: py36-test
     - linux: py37-test
