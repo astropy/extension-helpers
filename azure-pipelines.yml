@@ -1,1 +1,31 @@
-#
+resources:
+  repositories:
+  - repository: OpenAstronomy
+    type: github
+    endpoint: astropy
+    name: OpenAstronomy/azure-pipelines-templates
+    ref: master
+
+jobs:
+- template: run-tox-env.yml@OpenAstronomy
+  parameters:
+    posargs: --openmp-expected=True
+    coverage: codecov
+    envs:
+    # Code style
+    - linux: pycodestyle
+    # Standard tests
+    - linux: py36-test
+    - linux: py37-test
+    - linux: py38-test
+    - linux: py38-test-dev
+    - macos: py36-test
+      posargs: --openmp-expected=False
+    - macos: py38-test-dev
+      posargs: --openmp-expected=False
+    - windows: py36-test
+    - windows: py38-test-dev
+    # Test with more compilers, for the OpenMP helpers
+    - macos: py38-test-osxgcc-conda
+    - macos: py38-test-osxclang-conda
+    - linux: py38-test-linuxgcc-conda

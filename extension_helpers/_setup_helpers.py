@@ -16,8 +16,8 @@ from distutils.core import Extension
 from setuptools import find_packages
 from setuptools.config import read_configuration
 
-from .distutils_helpers import get_compiler_option
-from .utils import walk_skip_hidden, import_file
+from ._distutils_helpers import get_compiler_option
+from ._utils import walk_skip_hidden, import_file
 
 __all__ = ['get_extensions']
 
@@ -32,7 +32,7 @@ def get_extensions(srcdir='.'):
     This function obtains that information by iterating through all
     packages in ``srcdir`` and locating a ``setup_package.py`` module.
     This module can contain the ``get_extensions()`` function which returns
-    a list of `distutils.core.Extension` objects.
+    a list of :class:`distutils.core.Extension` objects.
 
     """
     ext_modules = []
@@ -79,7 +79,7 @@ def get_extensions(srcdir='.'):
 
     if len(ext_modules) > 0:
         main_package_dir = min(packages, key=len)
-        src_path = os.path.relpath(os.path.join(os.path.dirname(__file__), 'src'))
+        src_path = os.path.join(os.path.dirname(__file__), 'src')
         shutil.copy(os.path.join(src_path, 'compiler.c'),
                     os.path.join(srcdir, main_package_dir, '_compiler.c'))
         ext = Extension(main_package_dir + '.compiler_version',
@@ -104,8 +104,7 @@ def iter_setup_packages(srcdir, packages):
     for packagename in packages:
         package_parts = packagename.split('.')
         package_path = os.path.join(srcdir, *package_parts)
-        setup_package = os.path.relpath(
-            os.path.join(package_path, 'setup_package.py'))
+        setup_package = os.path.join(package_path, 'setup_package.py')
 
         if os.path.isfile(setup_package):
             module = import_file(setup_package,
@@ -129,7 +128,7 @@ def iter_pyx_files(package_dir, package_name):
     for dirpath, dirnames, filenames in walk_skip_hidden(package_dir):
         for fn in filenames:
             if fn.endswith('.pyx'):
-                fullfn = os.path.relpath(os.path.join(dirpath, fn))
+                fullfn = os.path.join(dirpath, fn)
                 # Package must match file name
                 extmod = '.'.join([package_name, fn[:-4]])
                 yield (extmod, fullfn)

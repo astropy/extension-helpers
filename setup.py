@@ -4,6 +4,7 @@
 # NOTE: most of the configuration, including the version number,
 # is defined in setup.cfg
 
+import os
 import sys
 from distutils.version import LooseVersion
 
@@ -14,4 +15,4 @@ if LooseVersion(setuptools.__version__) < '30.3':
     sys.stderr.write("ERROR: setuptools 30.3 or later is required by extension-helpers\n")
     sys.exit(1)
 
-setup()
+setup(use_scm_version={'write_to': os.path.join('extension_helpers', 'version.py')})

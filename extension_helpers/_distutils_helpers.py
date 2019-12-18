@@ -15,7 +15,7 @@ from distutils import ccompiler
 from distutils.dist import Distribution
 from distutils.errors import DistutilsError
 
-from .utils import silence
+from ._utils import silence
 
 
 def get_dummy_distribution():

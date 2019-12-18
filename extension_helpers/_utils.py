@@ -7,6 +7,8 @@ import glob
 
 from importlib import machinery as import_machinery
 
+__all__ = ['write_if_different', 'import_file']
+
 
 # Note: The following Warning subclasses are simply copies of the Warnings in
 # Astropy of the same names.
@@ -29,16 +31,6 @@ class AstropyPendingDeprecationWarning(PendingDeprecationWarning,
     """
     A warning class to indicate a soon-to-be deprecated feature.
     """
-
-
-def _get_platlib_dir(cmd):
-    """
-    Given a build command, return the name of the appropriate platform-specific
-    build subdirectory directory (e.g. build/lib.linux-x86_64-2.7)
-    """
-
-    plat_specifier = '.{0}-{1}'.format(cmd.plat_name, sys.version[0:3])
-    return os.path.join(cmd.build_base, 'lib' + plat_specifier)
 
 
 class _DummyFile(object):
@@ -64,7 +56,7 @@ def silence():
     exception_occurred = False
     try:
         yield
-    except:
+    except:  # noqa
         exception_occurred = True
         # Go ahead and clean up so that exception handling can work normally
         sys.stdout = old_stdout
@@ -146,14 +138,18 @@ def walk_skip_hidden(top, onerror=None, followlinks=False):
 
 
 def write_if_different(filename, data):
-    """Write `data` to `filename`, if the content of the file is different.
+    """
+    Write ``data`` to ``filename``, if the content of the file is different.
+
+    This can be useful if e.g. generating ``.c`` or ``.h`` files, to make sure
+    that Python does not re-build unchanged files.
 
     Parameters
     ----------
     filename : str
         The file name to be written to.
     data : bytes
-        The data to be written to `filename`.
+        The data to be written to ``filename``.
     """
 
     assert isinstance(data, bytes)
@@ -171,11 +167,13 @@ def write_if_different(filename, data):
 
 def import_file(filename, name=None):
     """
-    Imports a module from a single file as if it doesn't belong to a
-    particular package.
+    Imports a module from a single file without importing the package that
+    the file is in.
 
-    The returned module will have the optional ``name`` if given, or else
-    a name generated from the filename.
+    This is useful for cases where a file needs to be imported from
+    ``setup_package.py`` files without importing the parent package. The
+    returned module will have the optional ``name`` if given, or else a name
+    generated from the filename.
     """
     # Specifying a traditional dot-separated fully qualified name here
     # results in a number of "Parent module 'astropy' not found while
