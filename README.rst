@@ -1,11 +1,8 @@
 extension-helpers
 =================
 
-.. image:: https://travis-ci.org/astropy/extension-helpers.svg
-  :target: https://travis-ci.org/astropy/extension-helpers
-
-.. image:: https://circleci.com/gh/astropy/extension-helpers.svg?style=svg
-  :target: https://circleci.com/gh/astropy/extension-helpers
+.. image:: https://dev.azure.com/astropy-project/extension-helpers/_apis/build/status/astropy.extension-helpers?branchName=master
+  :target: https://dev.azure.com/astropy-project/extension-helpers/_build/latest?definitionId=4&branchName=master
 
 .. image:: https://codecov.io/gh/astropy/extension-helpers/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/astropy/extension-helpers
