@@ -144,16 +144,17 @@ def get_cython_extensions(srcdir, packages, prevextensions=tuple(),
     ----------
     srcdir : str
         Path to the root of the source directory to search.
-    prevextensions : list of `~distutils.core.Extension` objects
-        The extensions that are already defined.  Any .pyx files already here
-        will be ignored.
-    extincludedirs : list of str or None
+    prevextensions : list
+        The extensions that are already defined, as a list of of
+        `~distutils.core.Extension` objects.  Any .pyx files already here will
+        be ignored.
+    extincludedirs : list or None
         Directories to include as the `include_dirs` argument to the generated
-        `~distutils.core.Extension` objects.
+        `~distutils.core.Extension` objects, as a list of strings.
 
     Returns
     -------
-    exts : list of `~distutils.core.Extension` objects
+    exts : list
         The new extensions that are needed to compile all .pyx files (does not
         include any already in `prevextensions`).
     """
@@ -195,17 +196,18 @@ def pkg_config(packages, default_libraries, executable='pkg-config'):
 
     Parameters
     ----------
-    packages : list of str
-        A list of pkg-config packages to look up.
+    packages : list
+        The pkg-config packages to look up, as a list of strings.
 
-    default_libraries : list of str
-        A list of library names to use if the pkg-config lookup fails.
+    default_libraries : list
+        The ibrary names to use if the pkg-config lookup fails, a a list of
+        strings.
 
     Returns
     -------
     config : dict
         A dictionary containing keyword arguments to
-        `distutils.Extension`.  These entries include:
+        :class:`~distutils.core.Extension`.  These entries include:
 
         - ``include_dirs``: A list of include directories
         - ``library_dirs``: A list of library directories
