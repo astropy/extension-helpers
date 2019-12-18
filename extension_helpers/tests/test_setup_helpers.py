@@ -1,15 +1,13 @@
 import os
 import sys
 import importlib
+from textwrap import dedent
 
 import pytest
 
-from textwrap import dedent
-
 from .._setup_helpers import get_extensions
-
 from . import reset_distutils_log  # noqa
-from . import run_setup, cleanup_import
+from . import cleanup_import, run_setup
 
 extension_helpers_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))  # noqa
 

@@ -10,12 +10,13 @@ utilities in this module do not have that restriction.
 
 import os
 import sys
-
 from distutils import ccompiler
 from distutils.dist import Distribution
 from distutils.errors import DistutilsError
 
 from ._utils import silence
+
+__all__ = ['get_compiler']
 
 
 def get_dummy_distribution():
@@ -94,8 +95,9 @@ def get_distutils_build_option(option):
     return get_distutils_option(option, ['build', 'build_ext', 'build_clib'])
 
 
-def get_compiler_option():
-    """ Determines the compiler that will be used to build extension modules.
+def get_compiler():
+    """
+    Determines the compiler that will be used to build extension modules.
 
     Returns
     -------
