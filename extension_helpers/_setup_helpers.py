@@ -4,7 +4,7 @@ This module contains a number of utilities for use during
 setup/build/packaging that are useful to astropy as a whole.
 """
 
-import collections
+from collections import defaultdict
 import os
 import subprocess
 import sys
@@ -16,10 +16,10 @@ from distutils.core import Extension
 from setuptools import find_packages
 from setuptools.config import read_configuration
 
-from ._distutils_helpers import get_compiler_option
+from ._distutils_helpers import get_compiler
 from ._utils import walk_skip_hidden, import_file
 
-__all__ = ['get_extensions']
+__all__ = ['get_extensions', 'pkg_config']
 
 
 def get_extensions(srcdir='.'):
@@ -73,7 +73,7 @@ def get_extensions(srcdir='.'):
     # commandline argument.  This was the default on MSVC 9.0, but is
     # now required on MSVC 10.0, but it doesn't seem to hurt to add
     # it unconditionally.
-    if get_compiler_option() == 'msvc':
+    if get_compiler() == 'msvc':
         for ext in ext_modules:
             ext.extra_link_args.append('/MANIFEST')
 
@@ -186,26 +186,6 @@ def get_cython_extensions(srcdir, packages, prevextensions=tuple(),
     return ext_modules
 
 
-class DistutilsExtensionArgs(collections.defaultdict):
-    """
-    A special dictionary whose default values are the empty list.
-
-    This is useful for building up a set of arguments for
-    `distutils.Extension` without worrying whether the entry is
-    already present.
-    """
-    def __init__(self, *args, **kwargs):
-        def default_factory():
-            return []
-
-        super(DistutilsExtensionArgs, self).__init__(
-            default_factory, *args, **kwargs)
-
-    def update(self, other):
-        for key, val in other.items():
-            self[key].extend(val)
-
-
 def pkg_config(packages, default_libraries, executable='pkg-config'):
     """
     Uses pkg-config to update a set of distutils Extension arguments
@@ -241,7 +221,7 @@ def pkg_config(packages, default_libraries, executable='pkg-config'):
                 '-D': 'define_macros', '-U': 'undef_macros'}
     command = "{0} --libs --cflags {1}".format(executable, ' '.join(packages)),
 
-    result = DistutilsExtensionArgs()
+    result = defaultdict(list)
 
     try:
         pipe = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
