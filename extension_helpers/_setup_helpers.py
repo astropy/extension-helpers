@@ -4,20 +4,19 @@ This module contains a number of utilities for use during
 setup/build/packaging that are useful to astropy as a whole.
 """
 
-from collections import defaultdict
 import os
-import subprocess
 import sys
 import shutil
-
+import subprocess
 from distutils import log
+from collections import defaultdict
 from distutils.core import Extension
 
 from setuptools import find_packages
 from setuptools.config import read_configuration
 
 from ._distutils_helpers import get_compiler
-from ._utils import walk_skip_hidden, import_file
+from ._utils import import_file, walk_skip_hidden
 
 __all__ = ['get_extensions', 'pkg_config']
 

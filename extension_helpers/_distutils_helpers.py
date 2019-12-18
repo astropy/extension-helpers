@@ -10,7 +10,6 @@ utilities in this module do not have that restriction.
 
 import os
 import sys
-
 from distutils import ccompiler
 from distutils.dist import Distribution
 from distutils.errors import DistutilsError

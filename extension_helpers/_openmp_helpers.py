@@ -18,11 +18,10 @@ import time
 import datetime
 import tempfile
 import subprocess
-
 from distutils import log
+from distutils.errors import LinkError, CompileError
 from distutils.ccompiler import new_compiler
-from distutils.sysconfig import customize_compiler, get_config_var
-from distutils.errors import CompileError, LinkError
+from distutils.sysconfig import get_config_var, customize_compiler
 
 from ._distutils_helpers import get_compiler
 

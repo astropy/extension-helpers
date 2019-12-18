@@ -1,10 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import contextlib
 import os
 import sys
 import glob
-
+import contextlib
 from importlib import machinery as import_machinery
 
 __all__ = ['write_if_different', 'import_file']
