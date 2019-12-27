@@ -9,29 +9,6 @@ from importlib import machinery as import_machinery
 __all__ = ['write_if_different', 'import_file']
 
 
-# Note: The following Warning subclasses are simply copies of the Warnings in
-# Astropy of the same names.
-class AstropyWarning(Warning):
-    """
-    The base warning class from which all Astropy warnings should inherit.
-
-    Any warning inheriting from this class is handled by the Astropy logger.
-    """
-
-
-class AstropyDeprecationWarning(AstropyWarning):
-    """
-    A warning class to indicate a deprecated feature.
-    """
-
-
-class AstropyPendingDeprecationWarning(PendingDeprecationWarning,
-                                       AstropyWarning):
-    """
-    A warning class to indicate a soon-to-be deprecated feature.
-    """
-
-
 class _DummyFile(object):
     """A noop writeable object."""
 
