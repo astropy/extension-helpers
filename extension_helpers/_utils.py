@@ -152,7 +152,7 @@ def import_file(filename, name=None):
     generated from the filename.
     """
     # Specifying a traditional dot-separated fully qualified name here
-    # results in a number of "Parent module 'astropy' not found while
+    # results in a number of "Parent module '...' not found while
     # handling absolute import" warnings.  Using the same name, the
     # namespaces of the modules get merged together.  So, this
     # generates an underscore-separated name which is more likely to

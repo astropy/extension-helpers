@@ -123,7 +123,7 @@ def pyx_extension_test_package(tmpdir, request):
 
 def test_cython_autoextensions(tmpdir):
     """
-    Regression test for https://github.com/astropy/extension-helpers/pull/19
+    Regression test for https://github.com/astropy/astropy-helpers/pull/19
 
     Ensures that Cython extensions in sub-packages are discovered and built
     only once.
