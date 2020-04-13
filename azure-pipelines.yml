@@ -3,8 +3,8 @@ resources:
   - repository: OpenAstronomy
     type: github
     endpoint: astropy
-    name: OpenAstronomy/azure-pipelines-templates
-    ref: master
+    name: astrofrog/azure-pipelines-templates
+    ref: fix-rc-exe
 
 jobs:
 - template: run-tox-env.yml@OpenAstronomy
