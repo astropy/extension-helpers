@@ -33,9 +33,37 @@ jobs:
       posargs: --openmp-expected=False
     - macos: py38-test-dev
       posargs: --openmp-expected=False
-    - windows: py36-test
-    - windows: py38-test-dev
     # Test with more compilers, for the OpenMP helpers
-    - macos: py38-test-osxgcc-conda
-    - macos: py38-test-osxclang-conda
     - linux: py38-test-linuxgcc-conda
+
+# Cannot run with conda due to missing rc.exe
+- job: 'Windows'
+  pool:
+    vmImage: 'windows-latest'
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.8'
+  - script: |
+      python -m pip install --upgrade tox
+      tox -e py36-test
+    displayName: 'Run standard tests'
+  - script: |
+      tox -e py38-test-dev
+    displayName: 'Run dev tests'
+
+# Cannot run with conda due to missing C compilers
+- job: 'OSX_OpenMP'
+  pool:
+    vmImage: 'macOS-latest'
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.8'
+  - script: |
+      python -m pip install --upgrade tox
+      tox -e py38-test-osxgcc-conda
+    displayName: 'OSX with gcc'
+  - script: |
+      tox -e py38-test-osxclang-conda
+    displayName: 'OSX with clang'
