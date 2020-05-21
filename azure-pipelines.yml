@@ -6,6 +6,14 @@ resources:
     name: OpenAstronomy/azure-pipelines-templates
     ref: master
 
+schedules:
+- cron: '0 0 * * 0'
+  displayName: 'Weekly cron'
+  branches:
+    include:
+    - master
+  always: 'true'
+
 jobs:
 - template: run-tox-env.yml@OpenAstronomy
   parameters:
