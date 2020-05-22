@@ -36,6 +36,5 @@ jobs:
     - windows: py36-test
     - windows: py38-test-dev
     # Test with more compilers, for the OpenMP helpers
-    - macos: py38-test-osxgcc-conda
     - macos: py38-test-osxclang-conda
     - linux: py38-test-linuxgcc-conda
