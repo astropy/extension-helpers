@@ -6,6 +6,8 @@ setup/build/packaging that are useful to astropy as a whole.
 
 import logging
 import os
+import re
+import sys
 import shutil
 import subprocess
 import sys
@@ -19,6 +21,31 @@ from ._utils import import_file, walk_skip_hidden
 __all__ = ["get_compiler", "get_extensions", "pkg_config"]
 
 log = logging.getLogger(__name__)
+
+_PEP_384_WARNING = """\
+Not targeting PEP 384 limited API. You can build one binary wheel for each \
+platform to support all Python versions by adding the following to your \
+project's setup.cfg file:
+
+    [bdist_wheel]
+    py_limited_api = cp36
+
+Replace '36' with the lowest Python major and minor version that you wish to \
+support.
+"""
+
+
+def _abi_to_version_info(abi):
+    match = re.fullmatch(r'^cp(\d)(\d)$', abi)
+    if match is None:
+        return None
+    else:
+        return int(match[1]), int(match[2])
+
+
+def _version_info_to_version_hex(major=0, minor=0, micro=0,
+                                 releaselevel=0, serial=0):
+    return f'0x{major:0>2}{minor:0>2}{micro:0>2}{releaselevel:0>2}{serial:0>2}'
 
 
 def get_compiler():
@@ -134,6 +161,24 @@ def get_extensions(srcdir="."):
             )
 
         extension.sources = sources
+
+    use_limited_api = False
+    abi = get_distutils_option('py_limited_api', ['bdist_wheel'])
+    if abi:
+        version_info = _abi_to_version_info(abi)
+        if version_info:
+            use_limited_api = True
+
+    if use_limited_api:
+        log.info(
+            'Targeting PEP 384 limited API supporting Python >= %d.%d',
+            *version_info)
+        version_hex = _version_info_to_version_hex(*version_info)
+        for ext in ext_modules:
+            ext.py_limited_api = True
+            ext.define_macros.append(('Py_LIMITED_API', version_hex))
+    else:
+        log.warn(_PEP_384_WARNING)
 
     return ext_modules
 
