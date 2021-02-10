@@ -164,6 +164,7 @@ def test_compiler_module(capsys, c_extension_test_package):
 
     with install_temp.as_cwd():
         import apyhtest_eva
+
         # Make sure we imported the apyhtest_eva package from the correct place
         dirname = os.path.abspath(os.path.dirname(apyhtest_eva.__file__))
         assert dirname == str(install_temp.join('apyhtest_eva'))

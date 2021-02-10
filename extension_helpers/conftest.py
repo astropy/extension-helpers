@@ -8,7 +8,8 @@ import os
 import glob
 
 try:
-    from coverage import CoverageData, __version__ as coverage_version
+    from coverage import CoverageData
+    from coverage import __version__ as coverage_version
 except ImportError:
     HAS_COVERAGE = False
     CoverageData = None
@@ -50,7 +51,6 @@ def pytest_unconfigure(config):
                 short_filename = filename[pos:]
                 if os.path.exists(short_filename):
                     lines[os.path.abspath(short_filename)].extend(cdata.lines(filename))
-
 
         if HAS_COVERAGE >= 5:
             # Support coverage<5 and >=5; see
