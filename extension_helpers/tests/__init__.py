@@ -4,13 +4,7 @@ import subprocess as sp
 
 import pytest
 
-try:
-    from coverage import CoverageData
-except ImportError:
-    HAS_COVERAGE = False
-else:
-    HAS_COVERAGE = True
-    from ..conftest import SUBPROCESS_COVERAGE
+from ..conftest import HAS_COVERAGE, SUBPROCESS_COVERAGE, CoverageData
 
 PACKAGE_DIR = os.path.dirname(__file__)
 
@@ -65,7 +59,13 @@ def run_setup(setup_script, args):
         stdout, stderr = p.communicate()
 
         cdata = CoverageData()
-        cdata.read_file(os.path.join(path, '.coverage'))
+        if HAS_COVERAGE >= 5:
+            # Support coverage<5 and >=5; see
+            # https://github.com/astropy/extension-helpers/issues/24
+            cdata.read()
+        else:
+            cdata.read_file(os.path.join(path, '.coverage'))
+
         SUBPROCESS_COVERAGE.append(cdata)
 
     else:

@@ -32,6 +32,7 @@ try:
     _EXTENSION_HELPERS_DISABLE_OPENMP_SETUP_
 except NameError:
     import builtins
+
     # It hasn't, so do so.
     builtins._EXTENSION_HELPERS_DISABLE_OPENMP_SETUP_ = False
 

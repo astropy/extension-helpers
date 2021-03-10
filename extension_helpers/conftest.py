@@ -9,13 +9,16 @@ import glob
 
 try:
     from coverage import CoverageData
+    from coverage import __version__ as coverage_version
 except ImportError:
     HAS_COVERAGE = False
+    CoverageData = None
 else:
-    HAS_COVERAGE = True
+    # Set to the major version number
+    HAS_COVERAGE = int(coverage_version.split('.')[0])
 
-if HAS_COVERAGE:
-    SUBPROCESS_COVERAGE = []
+
+SUBPROCESS_COVERAGE = []
 
 
 def pytest_configure(config):
@@ -26,9 +29,6 @@ def pytest_configure(config):
 def pytest_unconfigure(config):
 
     if HAS_COVERAGE:
-
-        # We create an empty coverage data object
-        combined_cdata = CoverageData()
 
         # Add all files from extension_helpers to make sure we compute the total
         # coverage, not just the coverage of the files that have non-zero
@@ -52,6 +52,14 @@ def pytest_unconfigure(config):
                 if os.path.exists(short_filename):
                     lines[os.path.abspath(short_filename)].extend(cdata.lines(filename))
 
-        combined_cdata.add_lines(lines)
-
-        combined_cdata.write_file('.coverage.subprocess')
+        if HAS_COVERAGE >= 5:
+            # Support coverage<5 and >=5; see
+            # https://github.com/astropy/extension-helpers/issues/24
+            # We create an empty coverage data object
+            combined_cdata = CoverageData(suffix='subprocess')
+            combined_cdata.add_lines(lines)
+            combined_cdata.write()
+        else:
+            combined_cdata = CoverageData()
+            combined_cdata.add_lines(lines)
+            combined_cdata.write_file('.coverage.subprocess')
