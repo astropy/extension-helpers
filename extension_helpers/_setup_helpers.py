@@ -36,7 +36,7 @@ def get_compiler():
     return new_compiler().compiler_type
 
 
-def get_extensions(srcdir='.'):
+def get_extensions(srcdir='.', distribution=None):
     """
     Collect all extensions from Cython files and ``setup_package.py`` files.
 
