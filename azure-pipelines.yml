@@ -39,4 +39,4 @@ jobs:
     - macos: py38-test-osxclang-conda
     - linux: py38-test-linuxgcc-conda
     # Test downstream packages
-    - linux: downstream
+    - linux: py39-downstream
