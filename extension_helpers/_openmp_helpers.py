@@ -15,13 +15,11 @@ import os
 import sys
 import glob
 import time
+import logging
 import datetime
 import tempfile
 import subprocess
-from distutils import log
-from distutils.errors import LinkError, CompileError
-from distutils.ccompiler import new_compiler
-from distutils.sysconfig import get_config_var, customize_compiler
+from setuptools.command.build_ext import new_compiler, get_config_var, customize_compiler
 
 from ._distutils_helpers import get_compiler
 
@@ -35,6 +33,8 @@ except NameError:
 
     # It hasn't, so do so.
     builtins._EXTENSION_HELPERS_DISABLE_OPENMP_SETUP_ = False
+
+log = logging.getLogger(__name__)
 
 CCODE = """
 #include <omp.h>
@@ -211,7 +211,7 @@ def check_openmp_support(openmp_flags=None):
                 log.warn("Unexpected output from test OpenMP "
                          "program (output was {0})".format(output))
                 is_openmp_supported = False
-        except (CompileError, LinkError, subprocess.CalledProcessError):
+        except Exception:
             is_openmp_supported = False
 
         finally:
@@ -224,9 +224,10 @@ def is_openmp_supported():
     """
     Determine whether the build compiler has OpenMP support.
     """
-    log_threshold = log.set_threshold(log.FATAL)
+    log_threshold = log.level
+    log.setLevel('CRITICAL')
     ret = check_openmp_support()
-    log.set_threshold(log_threshold)
+    log.setLevel(log_threshold)
     return ret
 
 

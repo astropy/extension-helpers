@@ -10,9 +10,9 @@ utilities in this module do not have that restriction.
 
 import os
 import sys
-from distutils import ccompiler
-from distutils.dist import Distribution
-from distutils.errors import DistutilsError
+from setuptools.command.build_ext import new_compiler
+from setuptools.dist import Distribution
+from setuptools.errors import DistutilsError
 
 from ._utils import silence
 
@@ -110,6 +110,6 @@ def get_compiler():
 
     compiler = get_distutils_build_option('compiler')
     if compiler is None:
-        return ccompiler.get_default_compiler()
+        return new_compiler()
 
     return compiler

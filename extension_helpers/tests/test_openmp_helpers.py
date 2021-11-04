@@ -3,7 +3,7 @@ import sys
 import types
 from copy import deepcopy
 from importlib import machinery
-from distutils.core import Extension
+from setuptools import Extension
 
 import pytest
 

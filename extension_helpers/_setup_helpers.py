@@ -7,18 +7,18 @@ setup/build/packaging that are useful to astropy as a whole.
 import os
 import sys
 import shutil
+import logging
 import subprocess
-from distutils import log
 from collections import defaultdict
-from distutils.core import Extension
 
-from setuptools import find_packages
-from setuptools.config import read_configuration
+from setuptools import Extension, find_packages
 
 from ._distutils_helpers import get_compiler
 from ._utils import import_file, walk_skip_hidden
 
 __all__ = ['get_extensions', 'pkg_config']
+
+log = logging.getLogger(__name__)
 
 
 def get_extensions(srcdir='.'):
