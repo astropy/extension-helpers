@@ -19,7 +19,8 @@ import logging
 import datetime
 import tempfile
 import subprocess
-from setuptools.command.build_ext import new_compiler, get_config_var, customize_compiler
+
+from setuptools.command.build_ext import customize_compiler, get_config_var, new_compiler
 
 from ._distutils_helpers import get_compiler
 

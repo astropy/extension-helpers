@@ -10,6 +10,7 @@ utilities in this module do not have that restriction.
 
 import os
 import sys
+
 from setuptools.command.build_ext import new_compiler
 from setuptools.dist import Distribution
 from setuptools.errors import DistutilsError
