@@ -38,3 +38,5 @@ jobs:
     # Test with more compilers, for the OpenMP helpers
     - macos: py38-test-osxclang-conda
     - linux: py38-test-linuxgcc-conda
+    # Test downstream packages
+    - linux: downstream
