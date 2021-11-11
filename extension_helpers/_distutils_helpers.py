@@ -44,13 +44,6 @@ def get_dummy_distribution():
     return dist
 
 
-def get_main_package_directory(distribution):
-    """
-    Given a Distribution object, return the main package directory.
-    """
-    return min(distribution.packages, key=len).replace('.', os.sep)
-
-
 def get_distutils_option(option, commands):
     """ Returns the value of the given distutils option.
 
@@ -111,6 +104,6 @@ def get_compiler():
 
     compiler = get_distutils_build_option('compiler')
     if compiler is None:
-        return new_compiler()
+        return new_compiler().compiler_type
 
     return compiler
