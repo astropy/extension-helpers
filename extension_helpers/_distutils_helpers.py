@@ -10,9 +10,10 @@ utilities in this module do not have that restriction.
 
 import os
 import sys
-from distutils import ccompiler
-from distutils.dist import Distribution
-from distutils.errors import DistutilsError
+
+from setuptools.command.build_ext import new_compiler
+from setuptools.dist import Distribution
+from setuptools.errors import DistutilsError
 
 from ._utils import silence
 
@@ -41,13 +42,6 @@ def get_dummy_distribution():
             pass
 
     return dist
-
-
-def get_main_package_directory(distribution):
-    """
-    Given a Distribution object, return the main package directory.
-    """
-    return min(distribution.packages, key=len).replace('.', os.sep)
 
 
 def get_distutils_option(option, commands):
@@ -110,6 +104,6 @@ def get_compiler():
 
     compiler = get_distutils_build_option('compiler')
     if compiler is None:
-        return ccompiler.get_default_compiler()
+        return new_compiler().compiler_type
 
     return compiler

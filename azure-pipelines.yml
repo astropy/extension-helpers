@@ -25,12 +25,10 @@ jobs:
     # Docs
     - linux: build_docs
     # Standard tests
-    - linux: py36-test
+    - linux: py36-test-oldestdeps
     - linux: py37-test
     - linux: py38-test
     - linux: py38-test-dev
-    - macos: py36-test
-      posargs: --openmp-expected=False
     - macos: py38-test-dev
       posargs: --openmp-expected=False
     - windows: py36-test
@@ -38,3 +36,5 @@ jobs:
     # Test with more compilers, for the OpenMP helpers
     - macos: py38-test-osxclang-conda
     - linux: py38-test-linuxgcc-conda
+    # Test downstream packages
+    - linux: py39-downstream

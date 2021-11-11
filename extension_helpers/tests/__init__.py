@@ -83,18 +83,6 @@ def run_setup(setup_script, args):
         raise SystemExit(p.returncode)
 
 
-@pytest.fixture(scope='function', autouse=True)
-def reset_distutils_log():
-    """
-    This is a setup/teardown fixture that ensures the log-level of the
-    distutils log is always set to a default of WARN, since different
-    settings could affect tests that check the contents of stdout.
-    """
-
-    from distutils import log
-    log.set_threshold(log.WARN)
-
-
 TEST_PACKAGE_SETUP_PY = """\
 #!/usr/bin/env python
 

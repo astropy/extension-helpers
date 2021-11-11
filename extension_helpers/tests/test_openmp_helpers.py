@@ -3,9 +3,9 @@ import sys
 import types
 from copy import deepcopy
 from importlib import machinery
-from distutils.core import Extension
 
 import pytest
+from setuptools import Extension
 
 from .._openmp_helpers import add_openmp_flags_if_available, generate_openmp_enabled_py
 
