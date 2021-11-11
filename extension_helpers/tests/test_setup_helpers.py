@@ -5,7 +5,7 @@ from textwrap import dedent
 
 import pytest
 
-from .._setup_helpers import get_extensions
+from .._setup_helpers import get_compiler, get_extensions
 from . import cleanup_import, run_setup
 
 extension_helpers_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))  # noqa
@@ -17,6 +17,13 @@ def teardown_module(module):
     tmpfile = 'openmp_enabled.py'
     if os.path.exists(tmpfile):
         os.remove(tmpfile)
+
+
+POSSIBLE_COMPILERS = ['unix', 'msvc', 'bcpp', 'cygwin', 'mingw32']
+
+
+def test_get_compiler():
+    assert get_compiler() in POSSIBLE_COMPILERS
 
 
 def _extension_test_package(tmpdir, request, extension_type='c',

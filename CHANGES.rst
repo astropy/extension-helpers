@@ -5,6 +5,8 @@
 
 * Removed any direct usage of distutils. [#34]
 
+* Remove support for the undocumented --compiler argument to setup.py. [#36]
+
 0.1 (2019-12-18)
 ----------------
 

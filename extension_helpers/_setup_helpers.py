@@ -12,13 +12,28 @@ import subprocess
 from collections import defaultdict
 
 from setuptools import Extension, find_packages
+from setuptools.command.build_ext import new_compiler
 
-from ._distutils_helpers import get_compiler
 from ._utils import import_file, walk_skip_hidden
 
-__all__ = ['get_extensions', 'pkg_config']
+__all__ = ['get_compiler', 'get_extensions', 'pkg_config']
 
 log = logging.getLogger(__name__)
+
+
+def get_compiler():
+    """
+    Determines the compiler that will be used to build extension modules.
+
+    Returns
+    -------
+    compiler : str
+        The compiler option specified for the build, build_ext, or build_clib
+        command; or the default compiler for the platform if none was
+        specified.
+
+    """
+    return new_compiler().compiler_type
 
 
 def get_extensions(srcdir='.'):
