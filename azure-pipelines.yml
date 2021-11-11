@@ -29,7 +29,6 @@ jobs:
     - linux: py37-test
     - linux: py38-test
     - linux: py38-test-dev
-      posargs: --openmp-expected=False
     - macos: py38-test-dev
       posargs: --openmp-expected=False
     - windows: py36-test
