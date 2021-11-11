@@ -3,6 +3,7 @@
 
 * Added support for coverage>=5 for the extension-helpers test suite. [#24]
 
+* Removed any direct usage of distutils. [#34]
 
 0.1 (2019-12-18)
 ----------------
