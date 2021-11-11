@@ -127,7 +127,7 @@ def import_file(filename, name=None):
 
     if name is None:
         basename = os.path.splitext(filename)[0]
-        name = '_'.join(os.path.relpath(basename).split(os.sep)[1:])
+        name = '_'.join(os.path.abspath(basename).split(os.sep)[1:])
 
     if not os.path.exists(filename):
         raise ImportError('Could not import file {0}'.format(filename))
