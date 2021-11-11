@@ -22,7 +22,7 @@ import subprocess
 
 from setuptools.command.build_ext import customize_compiler, get_config_var, new_compiler
 
-from ._distutils_helpers import get_compiler
+from ._setup_helpers import get_compiler
 
 __all__ = ['add_openmp_flags_if_available']
 

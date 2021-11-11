@@ -9,41 +9,6 @@ from importlib import machinery as import_machinery
 __all__ = ['write_if_different', 'import_file']
 
 
-class _DummyFile(object):
-    """A noop writeable object."""
-
-    errors = ''
-
-    def write(self, s):
-        pass
-
-    def flush(self):
-        pass
-
-
-@contextlib.contextmanager
-def silence():
-    """A context manager that silences sys.stdout and sys.stderr."""
-
-    old_stdout = sys.stdout
-    old_stderr = sys.stderr
-    sys.stdout = _DummyFile()
-    sys.stderr = _DummyFile()
-    exception_occurred = False
-    try:
-        yield
-    except:  # noqa
-        exception_occurred = True
-        # Go ahead and clean up so that exception handling can work normally
-        sys.stdout = old_stdout
-        sys.stderr = old_stderr
-        raise
-
-    if not exception_occurred:
-        sys.stdout = old_stdout
-        sys.stderr = old_stderr
-
-
 if sys.platform == 'win32':
     import ctypes
 
