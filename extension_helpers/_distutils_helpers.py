@@ -44,51 +44,6 @@ def get_dummy_distribution():
     return dist
 
 
-def get_distutils_option(option, commands):
-    """ Returns the value of the given distutils option.
-
-    Parameters
-    ----------
-    option : str
-        The name of the option
-
-    commands : list of str
-        The list of commands on which this option is available
-
-    Returns
-    -------
-    val : str or None
-        the value of the given distutils option. If the option is not set,
-        returns None.
-    """
-
-    dist = get_dummy_distribution()
-
-    for cmd in commands:
-        cmd_opts = dist.command_options.get(cmd)
-        if cmd_opts is not None and option in cmd_opts:
-            return cmd_opts[option][1]
-    else:
-        return None
-
-
-def get_distutils_build_option(option):
-    """ Returns the value of the given distutils build option.
-
-    Parameters
-    ----------
-    option : str
-        The name of the option
-
-    Returns
-    -------
-    val : str or None
-        The value of the given distutils build option. If the option
-        is not set, returns None.
-    """
-    return get_distutils_option(option, ['build', 'build_ext', 'build_clib'])
-
-
 def get_compiler():
     """
     Determines the compiler that will be used to build extension modules.
@@ -101,9 +56,4 @@ def get_compiler():
         specified.
 
     """
-
-    compiler = get_distutils_build_option('compiler')
-    if compiler is None:
-        return new_compiler().compiler_type
-
-    return compiler
+    return new_compiler().compiler_type
