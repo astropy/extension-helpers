@@ -25,7 +25,7 @@ jobs:
     # Docs
     - linux: build_docs
     # Standard tests
-    - linux: py36-test
+    - linux: py36-test-oldestdeps
     - linux: py37-test
     - linux: py38-test
     - linux: py38-test-dev
