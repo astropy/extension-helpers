@@ -11,6 +11,8 @@ def _finalize_distribution_hook(distribution):
     Something something setuptools entrypoint
     """
     config_files = distribution.find_config_files()
+    if len(config_files) == 0:
+        return
     cfg = ConfigParser()
     cfg.read(config_files[0])
     if cfg.has_option("extension_helpers", "use_extension_helpers") and cfg.get("extension_helpers", "use_extension_helpers"):
