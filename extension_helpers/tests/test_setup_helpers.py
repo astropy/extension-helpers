@@ -193,10 +193,6 @@ def test_no_setup_py(tmpdir, use_extension_helpers):
     test_pkg = tmpdir.mkdir('test_pkg')
     test_pkg.mkdir(package_name).ensure('__init__.py')
 
-    test_pkg.join(package_name, 'simple.pyx').write(dedent("""\
-        print("It's a silly place anyway.")
-    """))
-
     if use_extension_helpers is None:
         test_pkg.join('setup.cfg').write(dedent(f"""\
             [metadata]
