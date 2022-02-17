@@ -16,6 +16,6 @@ def _finalize_distribution_hook(distribution):
         return
     cfg = ConfigParser()
     cfg.read(config_files[0])
-    if (cfg.has_option("extension_helpers", "use_extension_helpers") and
-            cfg.get("extension_helpers", "use_extension_helpers")):
+    if (cfg.has_option("extension-helpers", "use_extension_helpers") and
+            cfg.get("extension-helpers", "use_extension_helpers").lower() == 'true'):
         distribution.ext_modules = get_extensions()
