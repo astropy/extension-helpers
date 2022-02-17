@@ -72,7 +72,9 @@ def _extension_test_package(tmpdir, request, extension_type='c',
     include_dirs = ['numpy'] if include_numpy else []
 
     extensions_list = [
-        "Extension('helpers_test_package.{0}', [join('helpers_test_package', '{1}')], include_dirs={2})".format(
+        "Extension('helpers_test_package.{0}', "
+        "[join('helpers_test_package', '{1}')], "
+        "include_dirs={2})".format(
             os.path.splitext(extension)[0], extension, include_dirs)
         for extension in extensions]
 
