@@ -39,3 +39,9 @@ To use this, you should modify your ``setup.py`` file to use
 Note that if you use this, extension-helpers will also we create a
 ``packagename.compiler_version`` submodule that contain information about the
 compilers used.
+
+It is also possible to enable extension-helpers in ``setup.cfg`` instead of
+``setup.py`` by adding the following configuration to the ``setup.cfg`` file::
+
+    [extension-helpers]
+    use_extension_helpers = true
