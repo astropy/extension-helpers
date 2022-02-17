@@ -8,7 +8,8 @@ from .version import version as __version__
 
 def _finalize_distribution_hook(distribution):
     """
-    Something something setuptools entrypoint
+    Entry point for setuptools which allows extension-helpers to be enabled
+    from setup.cfg without the need for setup.py.
     """
     config_files = distribution.find_config_files()
     if len(config_files) == 0:
@@ -17,5 +18,4 @@ def _finalize_distribution_hook(distribution):
     cfg.read(config_files[0])
     if (cfg.has_option("extension_helpers", "use_extension_helpers") and
             cfg.get("extension_helpers", "use_extension_helpers")):
-        extension_helpers_cfg = cfg["extension_helpers"]
         distribution.ext_modules = get_extensions()

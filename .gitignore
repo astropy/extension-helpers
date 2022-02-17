@@ -53,3 +53,6 @@ htmlcov
 
 # PyCharm
 .idea
+
+# Hypothesis
+.hypothesis
