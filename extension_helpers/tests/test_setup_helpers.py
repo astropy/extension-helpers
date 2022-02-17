@@ -193,6 +193,30 @@ def test_no_setup_py(tmpdir, use_extension_helpers):
     test_pkg = tmpdir.mkdir('test_pkg')
     test_pkg.mkdir(package_name).ensure('__init__.py')
 
+    simple_c = test_pkg.join(package_name, 'simple.c')
+
+    simple_c.write(dedent("""\
+        #include <Python.h>
+
+        static struct PyModuleDef moduledef = {
+            PyModuleDef_HEAD_INIT,
+            "simple",
+            NULL,
+            -1,
+            NULL
+        };
+        PyMODINIT_FUNC
+        PyInit_simple(void) {
+            return PyModule_Create(&moduledef);
+        }
+    """))
+
+    test_pkg.join(package_name, 'setup_package.py').write(dedent(f"""\
+        from setuptools import Extension
+        def get_extensions():
+            return [Extension('{package_name}.simple', ['{simple_c}'])]
+        """))
+
     if use_extension_helpers is None:
         test_pkg.join('setup.cfg').write(dedent(f"""\
             [metadata]
@@ -249,4 +273,4 @@ def test_no_setup_py(tmpdir, use_extension_helpers):
             except ImportError:
                 pass
             else:
-                raise AssertionError('compiler_version should not exist')
+                raise AssertionError(package_name + '.compiler_version should not exist')
