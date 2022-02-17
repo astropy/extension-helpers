@@ -216,7 +216,7 @@ def test_no_setup_py(tmpdir, use_extension_helpers):
     test_pkg.join(package_name, 'setup_package.py').write(dedent(f"""\
         from setuptools import Extension
         def get_extensions():
-            return [Extension('{package_name}.simple', ['{simple_c}'])]
+            return [Extension('{package_name}.simple', [r'{simple_c}'])]
         """))
 
     if use_extension_helpers is None:
