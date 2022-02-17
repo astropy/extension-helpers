@@ -7,6 +7,8 @@
 
 * Remove support for the undocumented --compiler argument to setup.py. [#36]
 
+* Added support for enabling extension-helpers from setup.cfg. [#33]
+
 0.1 (2019-12-18)
 ----------------
 
