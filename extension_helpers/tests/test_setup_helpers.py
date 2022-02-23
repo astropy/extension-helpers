@@ -1,6 +1,8 @@
 import os
 import sys
+import uuid
 import importlib
+import subprocess
 from textwrap import dedent
 
 import pytest
@@ -31,14 +33,14 @@ def _extension_test_package(tmpdir, request, extension_type='c',
     """Creates a simple test package with an extension module."""
 
     test_pkg = tmpdir.mkdir('test_pkg')
-    test_pkg.mkdir('apyhtest_eva').ensure('__init__.py')
+    test_pkg.mkdir('helpers_test_package').ensure('__init__.py')
 
     # TODO: It might be later worth making this particular test package into a
     # reusable fixture for other build_ext tests
 
     if extension_type in ('c', 'both'):
         # A minimal C extension for testing
-        test_pkg.join('apyhtest_eva', 'unit01.c').write(dedent("""\
+        test_pkg.join('helpers_test_package', 'unit01.c').write(dedent("""\
             #include <Python.h>
 
             static struct PyModuleDef moduledef = {
@@ -56,7 +58,7 @@ def _extension_test_package(tmpdir, request, extension_type='c',
 
     if extension_type in ('pyx', 'both'):
         # A minimal Cython extension for testing
-        test_pkg.join('apyhtest_eva', 'unit02.pyx').write(dedent("""\
+        test_pkg.join('helpers_test_package', 'unit02.pyx').write(dedent("""\
             print("Hello cruel angel.")
         """))
 
@@ -70,11 +72,13 @@ def _extension_test_package(tmpdir, request, extension_type='c',
     include_dirs = ['numpy'] if include_numpy else []
 
     extensions_list = [
-        "Extension('apyhtest_eva.{0}', [join('apyhtest_eva', '{1}')], include_dirs={2})".format(
+        "Extension('helpers_test_package.{0}', "
+        "[join('helpers_test_package', '{1}')], "
+        "include_dirs={2})".format(
             os.path.splitext(extension)[0], extension, include_dirs)
         for extension in extensions]
 
-    test_pkg.join('apyhtest_eva', 'setup_package.py').write(dedent("""\
+    test_pkg.join('helpers_test_package', 'setup_package.py').write(dedent("""\
         from setuptools import Extension
         from os.path import join
         def get_extensions():
@@ -89,7 +93,7 @@ def _extension_test_package(tmpdir, request, extension_type='c',
         from extension_helpers import get_extensions
 
         setup(
-            name='apyhtest_eva',
+            name='helpers_test_package',
             version='0.1',
             packages=find_packages(),
             ext_modules=get_extensions()
@@ -102,7 +106,7 @@ def _extension_test_package(tmpdir, request, extension_type='c',
     sys.path.insert(0, '')
 
     def finalize():
-        cleanup_import('apyhtest_eva')
+        cleanup_import('helpers_test_package')
 
     request.addfinalizer(finalize)
 
@@ -169,11 +173,107 @@ def test_compiler_module(capsys, c_extension_test_package):
                    '--record={0}'.format(install_temp.join('record.txt'))])
 
     with install_temp.as_cwd():
-        import apyhtest_eva
+        import helpers_test_package
 
-        # Make sure we imported the apyhtest_eva package from the correct place
-        dirname = os.path.abspath(os.path.dirname(apyhtest_eva.__file__))
-        assert dirname == str(install_temp.join('apyhtest_eva'))
+        # Make sure we imported the helpers_test_package package from the correct place
+        dirname = os.path.abspath(os.path.dirname(helpers_test_package.__file__))
+        assert dirname == str(install_temp.join('helpers_test_package'))
 
-        import apyhtest_eva.compiler_version
-        assert apyhtest_eva.compiler_version != 'unknown'
+        import helpers_test_package.compiler_version
+        assert helpers_test_package.compiler_version != 'unknown'
+
+
+@pytest.mark.parametrize('use_extension_helpers', [None, False, True])
+def test_no_setup_py(tmpdir, use_extension_helpers):
+    """
+    Test that makes sure that extension-helpers can be enabled without a
+    setup.py file.
+    """
+
+    package_name = 'helpers_test_package_' + str(uuid.uuid4()).replace('-', '_')
+
+    test_pkg = tmpdir.mkdir('test_pkg')
+    test_pkg.mkdir(package_name).ensure('__init__.py')
+
+    simple_c = test_pkg.join(package_name, 'simple.c')
+
+    simple_c.write(dedent("""\
+        #include <Python.h>
+
+        static struct PyModuleDef moduledef = {
+            PyModuleDef_HEAD_INIT,
+            "simple",
+            NULL,
+            -1,
+            NULL
+        };
+        PyMODINIT_FUNC
+        PyInit_simple(void) {
+            return PyModule_Create(&moduledef);
+        }
+    """))
+
+    test_pkg.join(package_name, 'setup_package.py').write(dedent(f"""\
+        from setuptools import Extension
+        from os.path import join
+        def get_extensions():
+            return [Extension('{package_name}.simple', [join('{package_name}', 'simple.c')])]
+        """))
+
+    if use_extension_helpers is None:
+        test_pkg.join('setup.cfg').write(dedent(f"""\
+            [metadata]
+            name = {package_name}
+            version = 0.1
+
+            [options]
+            packages = find:
+        """))
+    else:
+        test_pkg.join('setup.cfg').write(dedent(f"""\
+            [metadata]
+            name = {package_name}
+            version = 0.1
+
+            [options]
+            packages = find:
+
+            [extension-helpers]
+            use_extension_helpers = {str(use_extension_helpers).lower()}
+        """))
+
+    test_pkg.join('pyproject.toml').write(dedent("""\
+        [build-system]
+        requires = ["setuptools>=43.0.0",
+                    "wheel"]
+        build-backend = 'setuptools.build_meta'
+    """))
+
+    install_temp = test_pkg.mkdir('install_temp')
+
+    with test_pkg.as_cwd():
+        # NOTE: we disable build isolation as we need to pick up the current
+        # developer version of extension-helpers
+        subprocess.call([sys.executable, '-m', 'pip', 'install', '.',
+                         '--no-build-isolation',
+                         f'--target={install_temp}'])
+
+    if '' in sys.path:
+        sys.path.remove('')
+
+    sys.path.insert(0, '')
+
+    with install_temp.as_cwd():
+
+        importlib.import_module(package_name)
+
+        if use_extension_helpers:
+            compiler_version_mod = importlib.import_module(package_name + '.compiler_version')
+            assert compiler_version_mod.compiler != 'unknown'
+        else:
+            try:
+                importlib.import_module(package_name + '.compiler_version')
+            except ImportError:
+                pass
+            else:
+                raise AssertionError(package_name + '.compiler_version should not exist')
