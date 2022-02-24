@@ -1,10 +1,10 @@
 extension-helpers
 =================
 
-.. image:: https://dev.azure.com/astropy-project/extension-helpers/_apis/build/status/astropy.extension-helpers?branchName=master
-  :target: https://dev.azure.com/astropy-project/extension-helpers/_build/latest?definitionId=4&branchName=master
+.. image:: https://dev.azure.com/astropy-project/extension-helpers/_apis/build/status/astropy.extension-helpers?branchName=main
+  :target: https://dev.azure.com/astropy-project/extension-helpers/_build/latest?definitionId=4&branchName=main
 
-.. image:: https://codecov.io/gh/astropy/extension-helpers/branch/master/graph/badge.svg
+.. image:: https://codecov.io/gh/astropy/extension-helpers/branch/main/graph/badge.svg
   :target: https://codecov.io/gh/astropy/extension-helpers
 
 The **extension-helpers** package includes convenience helpers to assist with

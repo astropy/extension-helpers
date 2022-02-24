@@ -11,7 +11,7 @@ schedules:
   displayName: 'Weekly cron'
   branches:
     include:
-    - master
+    - main
   always: 'true'
 
 jobs:
