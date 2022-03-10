@@ -3,6 +3,7 @@ on:
   pull_request:
 
 jobs:
+
   test:
     uses: ConorMacBride/github-actions-workflows/.github/workflows/publish.yml@initial-tox
     with:
@@ -27,3 +28,11 @@ jobs:
         - linux: py38-test-linuxgcc-conda
         # Test downstream packages
         - linux: py39-downstream
+
+  publish:
+    uses: OpenAstronomy/github-actions-workflows/.github/workflows/publish_pure_python.yml@main
+    with:
+      test_extras: test
+      test_command: pytest --pyargs extension_helpers
+    secrets:
+      pypi_password: ${{ secrets.pypi_password }}
