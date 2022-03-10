@@ -5,7 +5,7 @@ on:
 jobs:
 
   test:
-    uses: ConorMacBride/github-actions-workflows/.github/workflows/tox.yml@initial-tox
+    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@main
     with:
       posargs: --openmp-expected=True
       coverage: codecov
