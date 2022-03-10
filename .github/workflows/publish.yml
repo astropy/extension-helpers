@@ -1,0 +1,12 @@
+on:
+  push:
+  pull_request:
+
+jobs:
+ publish:
+    uses: OpenAstronomy/github-actions-workflows/.github/workflows/publish_pure_python.yml@main
+    with:
+      test_extras: test
+      test_command: pytest --pyargs extension_helpers
+    secrets:
+      pypi_password: ${{ secrets.pypi_password }}

@@ -3,8 +3,7 @@ on:
   pull_request:
 
 jobs:
-
-  test:
+  tests:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@main
     with:
       posargs: --openmp-expected=True
@@ -28,11 +27,5 @@ jobs:
         - linux: py38-test-linuxgcc-conda
         # Test downstream packages
         - linux: py39-downstream
-
-  publish:
-    uses: OpenAstronomy/github-actions-workflows/.github/workflows/publish_pure_python.yml@main
-    with:
-      test_extras: test
-      test_command: pytest --pyargs extension_helpers
-    secrets:
-      pypi_password: ${{ secrets.pypi_password }}
+    env:
+      OA_WINDOWS_RUNNER: windows-2019
