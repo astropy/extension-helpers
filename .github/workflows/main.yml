@@ -27,5 +27,5 @@ jobs:
         - linux: py38-test-linuxgcc-conda
         # Test downstream packages
         - linux: py39-downstream
-    env:
-      OA_WINDOWS_RUNNER: windows-2019
+      env:
+        OA_WINDOWS_RUNNER: windows-2019
