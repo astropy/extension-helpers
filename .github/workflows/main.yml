@@ -21,11 +21,11 @@ jobs:
         - macos: py38-test-dev
           posargs: --openmp-expected=False
         - windows: py36-test
+          runs-on: windows-2019
         - windows: py38-test-dev
+          runs-on: windows-2019
         # Test with more compilers, for the OpenMP helpers
         - macos: py38-test-osxclang-conda
         - linux: py38-test-linuxgcc-conda
         # Test downstream packages
         - linux: py39-downstream
-      env:
-        OA_WINDOWS_RUNNER: windows-2019
