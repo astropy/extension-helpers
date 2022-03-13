@@ -9,4 +9,4 @@ jobs:
       test_extras: test
       test_command: pytest --pyargs extension_helpers
     secrets:
-      pypi_password: ${{ secrets.pypi_password }}
+      pypi_token: ${{ secrets.pypi_password }}
