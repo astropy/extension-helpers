@@ -1,3 +1,4 @@
+
 import os
 import sys
 import types
@@ -18,6 +19,7 @@ def openmp_expected(request):
             return openmp_expected.lower() == 'true'
     except ValueError:
         return None
+
 
 def test_add_openmp_flags_if_available(openmp_expected):
 
