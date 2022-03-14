@@ -29,3 +29,11 @@ jobs:
         - linux: py38-test-linuxgcc-conda
         # Test downstream packages
         - linux: py39-downstream
+  publish:
+    needs: tests
+    uses: OpenAstronomy/github-actions-workflows/.github/workflows/publish_pure_python.yml@main
+    with:
+      test_extras: test
+      test_command: pytest --pyargs extension_helpers
+    secrets:
+      pypi_token: ${{ secrets.PYPI_TOKEN }}
