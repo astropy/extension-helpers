@@ -4,6 +4,7 @@ on:
 
 jobs:
  publish:
+    needs: tests
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/publish_pure_python.yml@main
     with:
       test_extras: test
