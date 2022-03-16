@@ -1,5 +1,5 @@
-0.2 (unreleased)
-----------------
+1.0.0 (2022-03-16)
+------------------
 
 * Added support for coverage>=5 for the extension-helpers test suite. [#24]
 
