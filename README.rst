@@ -1,11 +1,15 @@
 extension-helpers
 =================
 
-.. image:: https://dev.azure.com/astropy-project/extension-helpers/_apis/build/status/astropy.extension-helpers?branchName=main
-  :target: https://dev.azure.com/astropy-project/extension-helpers/_build/latest?definitionId=4&branchName=main
+.. image:: https://github.com/astropy/extension-helpers/actions/workflows/main.yml/badge.svg
+  :target: https://github.com/astropy/extension-helpers/actions/workflows/main.yml
 
 .. image:: https://codecov.io/gh/astropy/extension-helpers/branch/main/graph/badge.svg
   :target: https://codecov.io/gh/astropy/extension-helpers
+
+.. image:: https://readthedocs.org/projects/extension-helpers/badge/?version=latest
+  :target: https://extension-helpers.readthedocs.io/en/latest/?badge=latest
+  :alt: Documentation Status
 
 The **extension-helpers** package includes convenience helpers to assist with
 building Python packages with compiled C/Cython extensions. It is developed by
