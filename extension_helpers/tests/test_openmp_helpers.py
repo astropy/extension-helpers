@@ -1,3 +1,4 @@
+
 import os
 import sys
 import types
@@ -12,9 +13,12 @@ from .._openmp_helpers import add_openmp_flags_if_available, generate_openmp_ena
 
 @pytest.fixture
 def openmp_expected(request):
-    openmp_expected = request.config.getoption("--openmp-expected")
-    if openmp_expected is not None:
-        return openmp_expected.lower() == 'true'
+    try:
+        openmp_expected = request.config.getoption("--openmp-expected")
+        if openmp_expected is not None:
+            return openmp_expected.lower() == 'true'
+    except ValueError:
+        return None
 
 
 def test_add_openmp_flags_if_available(openmp_expected):
