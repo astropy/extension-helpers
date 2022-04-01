@@ -41,6 +41,9 @@ def check_apple_clang():
     Detemines if compiler that will be used to build extension modules is
     'Apple Clang' (which requires a specific management of OpenMP compilation
     and linking flags).
+    
+    In addition, it may require that you install `libomp` (e.g. with
+    `brew install libomp`).
 
     Returns
     -------
@@ -54,7 +57,7 @@ def check_apple_clang():
             [ccompiler.compiler[0], "--version"], capture_output=True
         )
         apple_clang = "Apple clang" in str(compiler_version.stdout)
-    except:
+    except Exception:
         apple_clang = False
     return apple_clang
 
