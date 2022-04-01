@@ -7,7 +7,7 @@ from textwrap import dedent
 
 import pytest
 
-from .._setup_helpers import get_compiler, get_extensions
+from .._setup_helpers import check_apple_clang, get_compiler, get_extensions
 from . import cleanup_import, run_setup
 
 extension_helpers_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))  # noqa
@@ -26,6 +26,9 @@ POSSIBLE_COMPILERS = ['unix', 'msvc', 'bcpp', 'cygwin', 'mingw32']
 
 def test_get_compiler():
     assert get_compiler() in POSSIBLE_COMPILERS
+
+def test_check_apple_clang():
+    assert check_apple_clang() in [True, False]
 
 
 def _extension_test_package(tmpdir, request, extension_type='c',
