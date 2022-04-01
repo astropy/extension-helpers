@@ -169,7 +169,7 @@ def get_openmp_flags():
             link_flags.append('-lomp')
             if not 'LDFLAG' in os.environ and \
                 os.path.isdir('/usr/local/opt/libomp/lib'):
-                compile_flags.append('-I/usr/local/opt/libomp/lib')
+                link_flags.append('-L/usr/local/opt/libomp/lib')
 
     return {'compiler_flags': compile_flags, 'linker_flags': link_flags}
 
