@@ -130,6 +130,10 @@ def get_openmp_flags():
         if include_path:
             compile_flags.append('-I' + include_path)
 
+        include_path = _get_flag_value_from_var('-I', 'CXXFLAGS')
+        if include_path:
+            compile_flags.append('-I' + include_path)
+
         lib_path = _get_flag_value_from_var('-L', 'LDFLAGS')
         if lib_path:
             link_flags.append('-L' + lib_path)
@@ -153,8 +157,8 @@ def get_openmp_flags():
                 respectively.
 
                 To use specific OpenMP source and library paths, you can setup
-                the following environment variables `CFLAGS` and `LDFLAGS`
-                before any compilation/installation, e.g.
+                the following environment variables `CFLAGS` (or `CXXFLAGS`)
+                and `LDFLAGS` before any compilation/installation, e.g.
                 ```
                 export CFLAGS="-I/usr/local/opt/libomp/include"
                 export LDFLAGS="-L/usr/local/opt/libomp/lib"
@@ -163,7 +167,7 @@ def get_openmp_flags():
             )
             log.warn(msg)
             compile_flags.append('-Xpreprocessor -fopenmp')
-            if not 'CFLAGS' in os.environ and \
+            if not 'CFLAGS' in os.environ and not 'CXXFLAGS' in os.environ and \
                 os.path.isdir('/usr/local/opt/libomp/include'):
                 compile_flags.append('-I/usr/local/opt/libomp/include')
             link_flags.append('-lomp')
