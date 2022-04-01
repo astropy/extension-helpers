@@ -223,12 +223,12 @@ def check_openmp_support(openmp_flags=None):
 
             # Compile, test program
             ccompiler.compile(['test_openmp.c'], output_dir='objects',
-                              extra_postargs=compile_flags)
+                              extra_preargs=compile_flags)
 
             # Link test program
             objects = glob.glob(os.path.join('objects', '*' + ccompiler.obj_extension))
             ccompiler.link_executable(objects, 'test_openmp',
-                                      extra_postargs=link_flags)
+                                      extra_preargs=link_flags)
 
             # Run test program
             output = subprocess.check_output('./test_openmp')
