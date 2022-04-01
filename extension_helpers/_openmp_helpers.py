@@ -19,6 +19,7 @@ import logging
 import datetime
 import tempfile
 import subprocess
+import textwrap
 
 from setuptools.command.build_ext import customize_compiler, get_config_var, new_compiler
 
@@ -138,8 +139,37 @@ def get_openmp_flags():
             compile_flags.append('-fopenmp')
             link_flags.append('-fopenmp')
         else:
+            msg = textwrap.dedent(
+                """\
+                You are using Apple Clang compiler.
+
+                Your system should be prepared:
+                1. You should have specfically installed OpenMP,
+                   for instance by running `brew install libomp`.
+                2. OpenMP source and library should be findable by the compiler.
+
+                By default, OpenMP source and library will be looked in
+                `/usr/local/opt/libomp/include` and `/usr/local/opt/libomp/lib`
+                respectively.
+
+                To use specific OpenMP source and library paths, you can setup
+                the following environment variables `CFLAGS` and `LDFLAGS`
+                before any compilation/installation, e.g.
+                ```
+                export CFLAGS="-I/usr/local/opt/libomp/include"
+                export LDFLAGS="-L/usr/local/opt/libomp/lib"
+                ```
+                """
+            )
+            log.warn(msg)
             compile_flags.append('-Xpreprocessor -fopenmp')
+            if not 'CFLAG' in os.environ and \
+                os.path.dir('/usr/local/opt/libomp/include'):
+                compile_flags.append('-I/usr/local/opt/libomp/include')
             link_flags.append('-lomp')
+            if not 'LDFLAG' in os.environ and \
+                os.path.dir('/usr/local/opt/libomp/lib'):
+                compile_flags.append('-I/usr/local/opt/libomp/lib')
 
     return {'compiler_flags': compile_flags, 'linker_flags': link_flags}
 
