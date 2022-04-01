@@ -61,6 +61,12 @@ def _get_flag_value_from_var(flag, var, delim=' '):
         The environment variable to extract the flag from, e.g. CFLAGS or LDFLAGS.
     delim : str, optional
         The delimiter separating flags inside the environment variable
+    
+    Returns
+    -------
+    extracted_flags : None|list
+        List of flags starting with flag extracted from var  environment
+        variable.
 
     Examples
     --------
@@ -98,10 +104,15 @@ def _get_flag_value_from_var(flag, var, delim=' '):
             return None
 
     # Extract flag from {var:value}
+    extracted_flags = []
     if flags:
         for item in flags.split(delim):
             if item.startswith(flag):
-                return item[flag_length:]
+                extracted_flags.append(item[flag_length:])
+    if len(extracted_flags) > 0:
+        return extracted_flags
+    else:
+        return None
 
 
 def get_openmp_flags():
@@ -128,16 +139,19 @@ def get_openmp_flags():
 
         include_path = _get_flag_value_from_var('-I', 'CFLAGS')
         if include_path:
-            compile_flags.append('-I' + include_path)
+            for _ in include_path:
+                compile_flags.append('-I' + _)
 
         include_path = _get_flag_value_from_var('-I', 'CXXFLAGS')
         if include_path:
-            compile_flags.append('-I' + include_path)
+            for _ in include_path:
+                compile_flags.append('-I' + _)
 
         lib_path = _get_flag_value_from_var('-L', 'LDFLAGS')
         if lib_path:
-            link_flags.append('-L' + lib_path)
-            link_flags.append('-Wl,-rpath,' + lib_path)
+            for _ in include_path:
+                link_flags.append('-L' + _)
+                link_flags.append('-Wl,-rpath,' + _)
 
         if not check_apple_clang():
             compile_flags.append('-fopenmp')

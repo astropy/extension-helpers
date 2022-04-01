@@ -8,7 +8,7 @@ from importlib import machinery
 import pytest
 from setuptools import Extension
 
-from .._openmp_helpers import add_openmp_flags_if_available, generate_openmp_enabled_py
+from .._openmp_helpers import _get_flag_value_from_var, add_openmp_flags_if_available, generate_openmp_enabled_py
 
 
 @pytest.fixture
@@ -51,3 +51,18 @@ def test_generate_openmp_enabled_py(openmp_expected):
 
     if openmp_expected is not None:
         assert openmp_expected is is_openmp_enabled
+
+
+def test_get_flag_value_from_var():
+    # define input
+    var = 'EXTTESTFLAGS'
+    flag = '-I'
+    # non existing var (at least should not)
+    assert _get_flag_value_from_var(flag, var) is None
+    # setup env varN
+    os.environ[var] = '-I/path/to/file1 -I/path/to/file2 -custom_option1 -custom_option2'
+    # non existing flag
+    assert _get_flag_value_from_var('-L', var) is None
+    # existing flag
+    assert _get_flag_value_from_var(flag, var) == ['/path/to/file1', '/path/to/file2']
+
