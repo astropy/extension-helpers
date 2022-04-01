@@ -164,11 +164,11 @@ def get_openmp_flags():
             log.warn(msg)
             compile_flags.append('-Xpreprocessor -fopenmp')
             if not 'CFLAG' in os.environ and \
-                os.path.dir('/usr/local/opt/libomp/include'):
+                os.path.isdir('/usr/local/opt/libomp/include'):
                 compile_flags.append('-I/usr/local/opt/libomp/include')
             link_flags.append('-lomp')
             if not 'LDFLAG' in os.environ and \
-                os.path.dir('/usr/local/opt/libomp/lib'):
+                os.path.isdir('/usr/local/opt/libomp/lib'):
                 compile_flags.append('-I/usr/local/opt/libomp/lib')
 
     return {'compiler_flags': compile_flags, 'linker_flags': link_flags}
