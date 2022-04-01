@@ -22,7 +22,7 @@ import subprocess
 
 from setuptools.command.build_ext import customize_compiler, get_config_var, new_compiler
 
-from ._setup_helpers import get_compiler
+from ._setup_helpers import check_apple_clang, get_compiler
 
 __all__ = ['add_openmp_flags_if_available']
 
@@ -134,8 +134,12 @@ def get_openmp_flags():
             link_flags.append('-L' + lib_path)
             link_flags.append('-Wl,-rpath,' + lib_path)
 
-        compile_flags.append('-fopenmp')
-        link_flags.append('-fopenmp')
+        if not check_apple_clang():
+            compile_flags.append('-fopenmp')
+            link_flags.append('-fopenmp')
+        else:
+            compile_flags.append('-Xpreprocessor -fopenmp')
+            link_flags.append('-lomp')
 
     return {'compiler_flags': compile_flags, 'linker_flags': link_flags}
 
