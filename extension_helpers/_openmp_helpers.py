@@ -149,7 +149,7 @@ def get_openmp_flags():
 
         lib_path = _get_flag_value_from_var('-L', 'LDFLAGS')
         if lib_path:
-            for _ in include_path:
+            for _ in lib_path:
                 link_flags.append('-L' + _)
                 link_flags.append('-Wl,-rpath,' + _)
 
