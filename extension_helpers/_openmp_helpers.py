@@ -65,7 +65,7 @@ def _get_flag_value_from_var(flag, var, delim=' '):
     Returns
     -------
     extracted_flags : None|list
-        List of flags starting with flag extracted from var  environment
+        List of flags starting with flag extracted from var environment
         variable.
 
     Examples
@@ -74,7 +74,7 @@ def _get_flag_value_from_var(flag, var, delim=' '):
     function will then return the following:
 
         >>> _get_flag_value_from_var('-L', 'LDFLAGS')
-        '/usr/local/include'
+        ['/usr/local/include']
 
     Notes
     -----
@@ -128,6 +128,9 @@ def get_openmp_flags():
     -----
     The flags returned are not tested for validity, use
     `check_openmp_support(openmp_flags=get_openmp_flags())` to do so.
+
+    On MacOS, it may require that you install `libomp` (e.g. with
+    `brew install libomp`).
     """
 
     compile_flags = []
@@ -166,13 +169,14 @@ def get_openmp_flags():
                    for instance by running `brew install libomp`.
                 2. OpenMP source and library should be findable by the compiler.
 
-                By default, OpenMP source and library will be looked in
-                `/usr/local/opt/libomp/include` and `/usr/local/opt/libomp/lib`
-                respectively.
+                By default, `brew` will be use to find OpenMP source and
+                library. If not available, they will be looked for in
+                standard system directories.
 
-                To use specific OpenMP source and library paths, you can setup
-                the following environment variables `CFLAGS` (or `CXXFLAGS`)
-                and `LDFLAGS` before any compilation/installation, e.g.
+                To override this behavior and use specific OpenMP source and
+                library paths, you can setup the following environment
+                variables `CFLAGS` (or `CXXFLAGS`) and `LDFLAGS` before any
+                compilation/installation, e.g.
                 ```
                 export CFLAGS="-I/usr/local/opt/libomp/include"
                 export LDFLAGS="-L/usr/local/opt/libomp/lib"
@@ -180,14 +184,34 @@ def get_openmp_flags():
                 """
             )
             log.warn(msg)
+            # try to find path to libomp
+            try:
+                brew_check = subprocess.run(
+                    ["brew", "--prefix", "libomp"], capture_output=True
+                )
+                libomp = str(brew_check.stdout)
+            except Exception:
+                if os.path.isdir('/usr/local/opt/libomp'):
+                    libomp = '/usr/local/opt/libomp'
+                elif os.path.isfile('/opt/homebrew/include/omp.h') \
+                    and os.path.isfile('/opt/homebrew/lib/libomp.a'):
+                    libomp = '/opt/homebrew'
+                else:
+                    libomp = None
+            # compile flags
             compile_flags.append('-Xpreprocessor -fopenmp')
-            if not 'CFLAGS' in os.environ and not 'CXXFLAGS' in os.environ and \
-                os.path.isdir('/usr/local/opt/libomp/include'):
-                compile_flags.append('-I/usr/local/opt/libomp/include')
+            # additional include flag
+            if not 'CFLAGS' in os.environ and not 'CXXFLAGS' in os.environ \
+                and libomp is not None \
+                and os.path.isdir(os.path.join(libomp, 'include')):
+                    compile_flags.append('-I' + os.path.join(libomp, 'include'))
+            # link flag
             link_flags.append('-lomp')
-            if not 'LDFLAGS' in os.environ and \
-                os.path.isdir('/usr/local/opt/libomp/lib'):
-                link_flags.append('-L/usr/local/opt/libomp/lib')
+            # additional link flag
+            if not 'LDFLAGS' in os.environ \
+                and libomp is not None \
+                and os.path.isdir(os.path.join(libomp, 'lib')):
+                link_flags.append('-L' + os.path.join(libomp, 'lib'))
 
     return {'compiler_flags': compile_flags, 'linker_flags': link_flags}
 
