@@ -9,6 +9,7 @@ import sys
 import shutil
 import logging
 import subprocess
+import sys
 from collections import defaultdict
 
 from setuptools import Extension, find_packages
@@ -42,24 +43,26 @@ def check_apple_clang():
     'Apple Clang' (which requires a specific management of OpenMP compilation
     and linking flags).
     
-    In addition, it may require that you install `libomp` (e.g. with
-    `brew install libomp`).
+    Note: it first checks that the OS is indeed MacOS.
 
     Returns
     -------
     apple_clang : bool
         Indicator whether current compiler is 'Apple Clang'.
     """
-    try:
-        ccompiler = new_compiler()
-        customize_compiler(ccompiler)
-        compiler_version = subprocess.run(
-            [ccompiler.compiler[0], "--version"], capture_output=True
-        )
-        apple_clang = "Apple clang" in str(compiler_version.stdout)
-    except Exception:
-        apple_clang = False
-    return apple_clang
+    if sys.platform != "darwin":
+        return False
+    else:
+        try:
+            ccompiler = new_compiler()
+            customize_compiler(ccompiler)
+            compiler_version = subprocess.run(
+                [ccompiler.compiler[0], "--version"], capture_output=True
+            )
+            apple_clang = "Apple clang" in str(compiler_version.stdout)
+        except Exception:
+            apple_clang = False
+        return apple_clang
 
 
 def get_extensions(srcdir='.'):
