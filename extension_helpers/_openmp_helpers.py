@@ -19,10 +19,11 @@ import logging
 import datetime
 import tempfile
 import subprocess
+import textwrap
 
 from setuptools.command.build_ext import customize_compiler, get_config_var, new_compiler
 
-from ._setup_helpers import get_compiler
+from ._setup_helpers import check_apple_clang, get_compiler
 
 __all__ = ['add_openmp_flags_if_available']
 
@@ -60,6 +61,12 @@ def _get_flag_value_from_var(flag, var, delim=' '):
         The environment variable to extract the flag from, e.g. CFLAGS or LDFLAGS.
     delim : str, optional
         The delimiter separating flags inside the environment variable
+    
+    Returns
+    -------
+    extracted_flags : None|list
+        List of flags starting with flag extracted from var environment
+        variable.
 
     Examples
     --------
@@ -67,7 +74,7 @@ def _get_flag_value_from_var(flag, var, delim=' '):
     function will then return the following:
 
         >>> _get_flag_value_from_var('-L', 'LDFLAGS')
-        '/usr/local/include'
+        ['/usr/local/include']
 
     Notes
     -----
@@ -97,10 +104,15 @@ def _get_flag_value_from_var(flag, var, delim=' '):
             return None
 
     # Extract flag from {var:value}
+    extracted_flags = []
     if flags:
         for item in flags.split(delim):
             if item.startswith(flag):
-                return item[flag_length:]
+                extracted_flags.append(item[flag_length:])
+    if len(extracted_flags) > 0:
+        return extracted_flags
+    else:
+        return None
 
 
 def get_openmp_flags():
@@ -116,6 +128,9 @@ def get_openmp_flags():
     -----
     The flags returned are not tested for validity, use
     `check_openmp_support(openmp_flags=get_openmp_flags())` to do so.
+
+    On MacOS, it may require that you install `libomp` (e.g. with
+    `brew install libomp`).
     """
 
     compile_flags = []
@@ -127,15 +142,76 @@ def get_openmp_flags():
 
         include_path = _get_flag_value_from_var('-I', 'CFLAGS')
         if include_path:
-            compile_flags.append('-I' + include_path)
+            for _ in include_path:
+                compile_flags.append('-I' + _)
+
+        include_path = _get_flag_value_from_var('-I', 'CXXFLAGS')
+        if include_path:
+            for _ in include_path:
+                compile_flags.append('-I' + _)
 
         lib_path = _get_flag_value_from_var('-L', 'LDFLAGS')
         if lib_path:
-            link_flags.append('-L' + lib_path)
-            link_flags.append('-Wl,-rpath,' + lib_path)
+            for _ in lib_path:
+                link_flags.append('-L' + _)
+                link_flags.append('-Wl,-rpath,' + _)
 
-        compile_flags.append('-fopenmp')
-        link_flags.append('-fopenmp')
+        if not check_apple_clang():
+            compile_flags.append('-fopenmp')
+            link_flags.append('-fopenmp')
+        else:
+            msg = textwrap.dedent(
+                """\
+                You are using Apple Clang compiler.
+
+                Your system should be prepared:
+                1. You should have specfically installed OpenMP,
+                   for instance by running `brew install libomp`.
+                2. OpenMP source and library should be findable by the compiler.
+
+                By default, `brew` will be use to find OpenMP source and
+                library. If not available, they will be looked for in
+                standard system directories.
+
+                To override this behavior and use specific OpenMP source and
+                library paths, you can setup the following environment
+                variables `CFLAGS` (or `CXXFLAGS`) and `LDFLAGS` before any
+                compilation/installation, e.g.
+                ```
+                export CFLAGS="-I/usr/local/opt/libomp/include"
+                export LDFLAGS="-L/usr/local/opt/libomp/lib"
+                ```
+                """
+            )
+            log.warn(msg)
+            # try to find path to libomp
+            try:
+                brew_check = subprocess.run(
+                    ["brew", "--prefix", "libomp"], capture_output=True
+                )
+                libomp = brew_check.stdout.decode('utf-8').strip()
+            except Exception:
+                if os.path.isdir('/usr/local/opt/libomp'):
+                    libomp = '/usr/local/opt/libomp'
+                elif os.path.isfile('/opt/homebrew/include/omp.h') \
+                    and os.path.isfile('/opt/homebrew/lib/libomp.a'):
+                    libomp = '/opt/homebrew'
+                else:
+                    libomp = None
+            # compile flags
+            compile_flags.append('-Xpreprocessor -fopenmp')
+            # additional include flag
+            if not 'CFLAGS' in os.environ and not 'CXXFLAGS' in os.environ \
+                and libomp is not None \
+                and os.path.isdir(os.path.join(libomp, 'include')):
+                    compile_flags.append('-I' + os.path.join(libomp, 'include'))
+            # link flag
+            link_flags.append('-lomp')
+            # additional link flag
+            if not 'LDFLAGS' in os.environ \
+                and libomp is not None \
+                and os.path.isdir(os.path.join(libomp, 'lib')):
+                link_flags.append('-L' + os.path.join(libomp, 'lib'))
 
     return {'compiler_flags': compile_flags, 'linker_flags': link_flags}
 
@@ -189,12 +265,12 @@ def check_openmp_support(openmp_flags=None):
 
             # Compile, test program
             ccompiler.compile(['test_openmp.c'], output_dir='objects',
-                              extra_postargs=compile_flags)
+                              extra_preargs=compile_flags)
 
             # Link test program
             objects = glob.glob(os.path.join('objects', '*' + ccompiler.obj_extension))
             ccompiler.link_executable(objects, 'test_openmp',
-                                      extra_postargs=link_flags)
+                                      extra_preargs=link_flags)
 
             # Run test program
             output = subprocess.check_output('./test_openmp')

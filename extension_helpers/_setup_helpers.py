@@ -9,10 +9,11 @@ import sys
 import shutil
 import logging
 import subprocess
+import sys
 from collections import defaultdict
 
 from setuptools import Extension, find_packages
-from setuptools.command.build_ext import new_compiler
+from setuptools.command.build_ext import customize_compiler,new_compiler
 
 from ._utils import import_file, walk_skip_hidden
 
@@ -34,6 +35,34 @@ def get_compiler():
 
     """
     return new_compiler().compiler_type
+
+
+def check_apple_clang():
+    """
+    Detemines if compiler that will be used to build extension modules is
+    'Apple Clang' (which requires a specific management of OpenMP compilation
+    and linking flags).
+    
+    Note: it first checks that the OS is indeed MacOS.
+
+    Returns
+    -------
+    apple_clang : bool
+        Indicator whether current compiler is 'Apple Clang'.
+    """
+    if sys.platform != "darwin":
+        return False
+    else:
+        try:
+            ccompiler = new_compiler()
+            customize_compiler(ccompiler)
+            compiler_version = subprocess.run(
+                [ccompiler.compiler[0], "--version"], capture_output=True
+            )
+            apple_clang = "Apple clang" in compiler_version.stdout.decode('utf-8')
+        except Exception:
+            apple_clang = False
+        return apple_clang
 
 
 def get_extensions(srcdir='.'):
