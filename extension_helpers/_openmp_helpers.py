@@ -189,7 +189,7 @@ def get_openmp_flags():
                 brew_check = subprocess.run(
                     ["brew", "--prefix", "libomp"], capture_output=True
                 )
-                libomp = str(brew_check.stdout)
+                libomp = brew_check.stdout.decode('utf-8').strip()
             except Exception:
                 if os.path.isdir('/usr/local/opt/libomp'):
                     libomp = '/usr/local/opt/libomp'

@@ -59,7 +59,7 @@ def check_apple_clang():
             compiler_version = subprocess.run(
                 [ccompiler.compiler[0], "--version"], capture_output=True
             )
-            apple_clang = "Apple clang" in str(compiler_version.stdout)
+            apple_clang = "Apple clang" in compiler_version.stdout.decode('utf-8')
         except Exception:
             apple_clang = False
         return apple_clang
