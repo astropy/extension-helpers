@@ -1,3 +1,10 @@
+1.0.1 (unreleased)
+------------------
+
+* The OpenMP helper functions now detect the Intel oneAPI compiler, icx, which
+  recommends the ``-Qopenmp`` flag rather than ``-fopenmp`` for greater
+  performance.
+
 1.0.0 (2022-03-16)
 ------------------
 

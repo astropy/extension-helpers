@@ -48,6 +48,13 @@ int main(void) {
 """
 
 
+CCODE_ICX = """
+#ifndef __INTEL_LLVM_COMPILER
+#error This is not the Intel oneAPI compiler
+#endif
+"""
+
+
 def _get_flag_value_from_var(flag, var, delim=' '):
     """
     Extract flags from an environment variable.
@@ -103,6 +110,44 @@ def _get_flag_value_from_var(flag, var, delim=' '):
                 return item[flag_length:]
 
 
+def _check_if_compiler_is_icx():
+    """
+    Check whether the compiler is the Intel oneAPI compiler.
+
+    Returns
+    -------
+    result : bool
+        `True` if the test passed, `False` otherwise.
+    """
+
+    ccompiler = new_compiler()
+    customize_compiler(ccompiler)
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        start_dir = os.path.abspath('.')
+
+        try:
+            os.chdir(tmp_dir)
+
+            # Write test program
+            with open('test_icx.c', 'w') as f:
+                f.write(CCODE_ICX)
+
+            os.mkdir('objects')
+
+            # Compile program
+            ccompiler.compile(['test_icx.c'], output_dir='objects')
+        except Exception:
+            is_icx = False
+        else:
+            is_icx = True
+
+        finally:
+            os.chdir(start_dir)
+
+    return is_icx
+
+
 def get_openmp_flags():
     """
     Utility for returning compiler and linker flags possibly needed for
@@ -134,8 +179,13 @@ def get_openmp_flags():
             link_flags.append('-L' + lib_path)
             link_flags.append('-Wl,-rpath,' + lib_path)
 
-        compile_flags.append('-fopenmp')
-        link_flags.append('-fopenmp')
+        if _check_if_compiler_is_icx():
+            openmp_flags = '-qopenmp'
+        else:
+            openmp_flags = '-fopenmp'
+
+        compile_flags.append(openmp_flags)
+        link_flags.append(openmp_flags)
 
     return {'compiler_flags': compile_flags, 'linker_flags': link_flags}
 
