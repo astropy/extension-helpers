@@ -34,8 +34,8 @@ def _finalize_distribution_hook(distribution):
         with pyproject.open("rb") as f:
             pyproject_cfg = tomli.load(f)
             if ('tool' in pyproject_cfg and
-                    'extension-helpers' in (tools := pyproject_cfg['tool']) and
-                    'use_extension_helpers' in (exn := tools['extension-helpers']) and
-                    exn['use_extension_helpers']):
+                    'extension-helpers' in pyproject_cfg['tool'] and
+                    'use_extension_helpers' in pyproject_cfg['tool']['extension-helpers'] and
+                    pyproject_cfg['tool']['extension-helpers']['use_extension_helpers']):
 
                 distribution.ext_modules = get_extensions()
