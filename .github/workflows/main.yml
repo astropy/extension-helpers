@@ -24,7 +24,7 @@ jobs:
         - linux: py39-test-dev
         - macos: py39-test-dev
           posargs: --openmp-expected=False
-        - windows: py36-test
+        - windows: py38-test
           runs-on: windows-2019
         - windows: py39-test-dev
           runs-on: windows-2019
