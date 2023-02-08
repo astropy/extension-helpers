@@ -184,7 +184,8 @@ def test_compiler_module(capsys, c_extension_test_package):
 
 
 @pytest.mark.parametrize('use_extension_helpers', [None, False, True])
-def test_no_setup_py(tmpdir, use_extension_helpers):
+@pytest.mark.parametrize('pyproject_use_helpers', [None, False, True])
+def test_no_setup_py(tmpdir, use_extension_helpers, pyproject_use_helpers):
     """
     Test that makes sure that extension-helpers can be enabled without a
     setup.py file.
@@ -242,12 +243,23 @@ def test_no_setup_py(tmpdir, use_extension_helpers):
             use_extension_helpers = {str(use_extension_helpers).lower()}
         """))
 
-    test_pkg.join('pyproject.toml').write(dedent("""\
-        [build-system]
-        requires = ["setuptools>=43.0.0",
-                    "wheel"]
-        build-backend = 'setuptools.build_meta'
-    """))
+    if pyproject_use_helpers is None:
+        test_pkg.join('pyproject.toml').write(dedent("""\
+            [build-system]
+            requires = ["setuptools>=43.0.0",
+                        "wheel"]
+            build-backend = 'setuptools.build_meta'
+        """))
+    else:
+        test_pkg.join('pyproject.toml').write(dedent(f"""\
+            [build-system]
+            requires = ["setuptools>=43.0.0",
+                        "wheel"]
+            build-backend = 'setuptools.build_meta'
+
+            [tool.extension-helpers]
+            use_extension_helpers = {str(pyproject_use_helpers).lower()}
+        """))
 
     install_temp = test_pkg.mkdir('install_temp')
 
@@ -267,7 +279,7 @@ def test_no_setup_py(tmpdir, use_extension_helpers):
 
         importlib.import_module(package_name)
 
-        if use_extension_helpers:
+        if use_extension_helpers or (use_extension_helpers is None and pyproject_use_helpers):
             compiler_version_mod = importlib.import_module(package_name + '.compiler_version')
             assert compiler_version_mod.compiler != 'unknown'
         else:
