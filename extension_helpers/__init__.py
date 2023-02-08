@@ -12,8 +12,9 @@ def _finalize_distribution_hook(distribution):
     from setup.cfg without the need for setup.py.
     """
     import os
-    import tomli
     from pathlib import Path
+
+    import tomli
 
     config_files = distribution.find_config_files()
     if len(config_files) == 0:
@@ -32,9 +33,9 @@ def _finalize_distribution_hook(distribution):
     if pyproject.exists() and not found_config:
         with pyproject.open("rb") as f:
             pyproject_cfg = tomli.load(f)
-            if ('tool' in pyproject_cfg and 
-                'extension-helpers' in (tools := pyproject_cfg['tool']) and 
-                'use_extension_helpers' in (exn := tools['extension-helpers']) and
-                exn['use_extension_helpers']):
+            if ('tool' in pyproject_cfg and
+                    'extension-helpers' in (tools := pyproject_cfg['tool']) and
+                    'use_extension_helpers' in (exn := tools['extension-helpers']) and
+                    exn['use_extension_helpers']):
 
                 distribution.ext_modules = get_extensions()
