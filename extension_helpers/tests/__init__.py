@@ -30,8 +30,8 @@ def run_cmd(cmd, args, path=None, raise_error=True):
 
     if raise_error and return_code != 0:
         raise RuntimeError(
-            "The command `{0}` with args {1!r} exited with code {2}.\n"
-            "Stdout:\n\n{3}\n\nStderr:\n\n{4}".format(
+            "The command `{}` with args {!r} exited with code {}.\n"
+            "Stdout:\n\n{}\n\nStderr:\n\n{}".format(
                 cmd, list(args), return_code, streams[0], streams[1]))
 
     return streams + (return_code,)
@@ -104,7 +104,7 @@ def create_testpackage(tmpdir, version='0.1'):
     with source.as_cwd():
         source.mkdir('_extension_helpers_test_')
         init = source.join('_extension_helpers_test_', '__init__.py')
-        init.write('__version__ = {0!r}'.format(version))
+        init.write(f'__version__ = {version!r}')
         setup_py = TEST_PACKAGE_SETUP_PY.format(version=version)
         source.join('setup.py').write(setup_py)
 

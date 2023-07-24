@@ -256,11 +256,11 @@ def check_openmp_support(openmp_flags=None):
                     is_openmp_supported = True
                 else:
                     log.warn("Unexpected number of lines from output of test OpenMP "
-                             "program (output was {0})".format(output))
+                             "program (output was {})".format(output))
                     is_openmp_supported = False
             else:
                 log.warn("Unexpected output from test OpenMP "
-                         "program (output was {0})".format(output))
+                         "program (output was {})".format(output))
                 is_openmp_supported = False
         except Exception:
             is_openmp_supported = False
@@ -290,7 +290,7 @@ def add_openmp_flags_if_available(extension):
     Returns `True` if the flags were added, `False` otherwise.
     """
 
-    if _EXTENSION_HELPERS_DISABLE_OPENMP_SETUP_:
+    if _EXTENSION_HELPERS_DISABLE_OPENMP_SETUP_:  # noqa: F821
         log.info("OpenMP support has been explicitly disabled.")
         return False
 
@@ -334,9 +334,11 @@ def generate_openmp_enabled_py(packagename, srcdir='.', disable_openmp=None):
     if disable_openmp is not None:
         import builtins
         builtins._EXTENSION_HELPERS_DISABLE_OPENMP_SETUP_ = disable_openmp
-    if _EXTENSION_HELPERS_DISABLE_OPENMP_SETUP_:
+    if _EXTENSION_HELPERS_DISABLE_OPENMP_SETUP_:  # noqa: F821
         log.info("OpenMP support has been explicitly disabled.")
-    openmp_support = False if _EXTENSION_HELPERS_DISABLE_OPENMP_SETUP_ else is_openmp_supported()
+        openmp_support = False
+    else:
+        is_openmp_supported()
 
     src = _IS_OPENMP_ENABLED_SRC.format(packagename=packagename,
                                         timestamp=timestamp,

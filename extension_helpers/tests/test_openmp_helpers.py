@@ -1,8 +1,5 @@
-
 import os
-import sys
 import types
-from copy import deepcopy
 from importlib import machinery
 
 import pytest

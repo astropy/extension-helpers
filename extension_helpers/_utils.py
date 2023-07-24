@@ -2,8 +2,6 @@
 
 import os
 import sys
-import glob
-import contextlib
 from importlib import machinery as import_machinery
 
 __all__ = ['write_if_different', 'import_file']
@@ -123,14 +121,13 @@ def import_file(filename, name=None):
     # generates an underscore-separated name which is more likely to
     # be unique, and it doesn't really matter because the name isn't
     # used directly here anyway.
-    mode = 'r'
 
     if name is None:
         basename = os.path.splitext(filename)[0]
         name = '_'.join(os.path.abspath(basename).split(os.sep)[1:])
 
     if not os.path.exists(filename):
-        raise ImportError('Could not import file {0}'.format(filename))
+        raise ImportError(f'Could not import file {filename}')
 
     loader = import_machinery.SourceFileLoader(name, filename)
     mod = loader.load_module()

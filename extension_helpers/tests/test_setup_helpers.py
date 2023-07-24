@@ -72,9 +72,9 @@ def _extension_test_package(tmpdir, request, extension_type='c',
     include_dirs = ['numpy'] if include_numpy else []
 
     extensions_list = [
-        "Extension('helpers_test_package.{0}', "
-        "[join('helpers_test_package', '{1}')], "
-        "include_dirs={2})".format(
+        "Extension('helpers_test_package.{}', "
+        "[join('helpers_test_package', '{}')], "
+        "include_dirs={})".format(
             os.path.splitext(extension)[0], extension, include_dirs)
         for extension in extensions]
 
@@ -82,7 +82,7 @@ def _extension_test_package(tmpdir, request, extension_type='c',
         from setuptools import Extension
         from os.path import join
         def get_extensions():
-            return [{0}]
+            return [{}]
     """.format(', '.join(extensions_list))))
 
     test_pkg.join('setup.py').write(dedent("""\
@@ -169,8 +169,8 @@ def test_compiler_module(capsys, c_extension_test_package):
         run_setup('setup.py',
                   ['install',
                    '--single-version-externally-managed',
-                   '--install-lib={0}'.format(install_temp),
-                   '--record={0}'.format(install_temp.join('record.txt'))])
+                   f'--install-lib={install_temp}',
+                   '--record={}'.format(install_temp.join('record.txt'))])
 
     with install_temp.as_cwd():
         import helpers_test_package

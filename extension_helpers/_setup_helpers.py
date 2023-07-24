@@ -235,7 +235,7 @@ def pkg_config(packages, default_libraries, executable='pkg-config'):
 
     flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries',
                 '-D': 'define_macros', '-U': 'undef_macros'}
-    command = "{0} --libs --cflags {1}".format(executable, ' '.join(packages)),
+    command = "{} --libs --cflags {}".format(executable, ' '.join(packages)),
 
     result = defaultdict(list)
 
@@ -244,18 +244,18 @@ def pkg_config(packages, default_libraries, executable='pkg-config'):
         output = pipe.communicate()[0].strip()
     except subprocess.CalledProcessError as e:
         lines = [
-            ("{0} failed. This may cause the build to fail below."
+            ("{} failed. This may cause the build to fail below."
              .format(executable)),
-            "  command: {0}".format(e.cmd),
-            "  returncode: {0}".format(e.returncode),
-            "  output: {0}".format(e.output)
+            f"  command: {e.cmd}",
+            f"  returncode: {e.returncode}",
+            f"  output: {e.output}"
             ]
         log.warn('\n'.join(lines))
         result['libraries'].extend(default_libraries)
     else:
         if pipe.returncode != 0:
             lines = [
-                "pkg-config could not lookup up package(s) {0}.".format(
+                "pkg-config could not lookup up package(s) {}.".format(
                     ", ".join(packages)),
                 "This may cause the build to fail below."
                 ]

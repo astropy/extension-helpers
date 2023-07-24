@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-import sys
 from pkg_resources import get_distribution
 
 project = 'extension-helpers'
