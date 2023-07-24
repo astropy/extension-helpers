@@ -56,3 +56,6 @@ htmlcov
 
 # Hypothesis
 .hypothesis
+
+# vscode
+settings.json

@@ -24,7 +24,7 @@ from setuptools.command.build_ext import customize_compiler, get_config_var, new
 
 from ._setup_helpers import get_compiler
 
-__all__ = ['add_openmp_flags_if_available']
+__all__ = ["add_openmp_flags_if_available"]
 
 try:
     # Check if this has already been instantiated, only set the default once.
@@ -55,7 +55,7 @@ CCODE_ICX = """
 """
 
 
-def _get_flag_value_from_var(flag, var, delim=' '):
+def _get_flag_value_from_var(flag, var, delim=" "):
     """
     Extract flags from an environment variable.
 
@@ -84,7 +84,7 @@ def _get_flag_value_from_var(flag, var, delim=' '):
     This function is not supported on Windows.
     """
 
-    if sys.platform.startswith('win'):
+    if sys.platform.startswith("win"):
         return None
 
     # Simple input validation
@@ -124,19 +124,19 @@ def _check_if_compiler_is_icx():
     customize_compiler(ccompiler)
 
     with tempfile.TemporaryDirectory() as tmp_dir:
-        start_dir = os.path.abspath('.')
+        start_dir = os.path.abspath(".")
 
         try:
             os.chdir(tmp_dir)
 
             # Write test program
-            with open('test_icx.c', 'w') as f:
+            with open("test_icx.c", "w") as f:
                 f.write(CCODE_ICX)
 
-            os.mkdir('objects')
+            os.mkdir("objects")
 
             # Compile program
-            ccompiler.compile(['test_icx.c'], output_dir='objects')
+            ccompiler.compile(["test_icx.c"], output_dir="objects")
         except Exception:
             is_icx = False
         else:
@@ -166,28 +166,27 @@ def get_openmp_flags():
     compile_flags = []
     link_flags = []
 
-    if get_compiler() == 'msvc':
-        compile_flags.append('-openmp')
+    if get_compiler() == "msvc":
+        compile_flags.append("-openmp")
     else:
-
-        include_path = _get_flag_value_from_var('-I', 'CFLAGS')
+        include_path = _get_flag_value_from_var("-I", "CFLAGS")
         if include_path:
-            compile_flags.append('-I' + include_path)
+            compile_flags.append("-I" + include_path)
 
-        lib_path = _get_flag_value_from_var('-L', 'LDFLAGS')
+        lib_path = _get_flag_value_from_var("-L", "LDFLAGS")
         if lib_path:
-            link_flags.append('-L' + lib_path)
-            link_flags.append('-Wl,-rpath,' + lib_path)
+            link_flags.append("-L" + lib_path)
+            link_flags.append("-Wl,-rpath," + lib_path)
 
         if _check_if_compiler_is_icx():
-            openmp_flags = '-qopenmp'
+            openmp_flags = "-qopenmp"
         else:
-            openmp_flags = '-fopenmp'
+            openmp_flags = "-fopenmp"
 
         compile_flags.append(openmp_flags)
         link_flags.append(openmp_flags)
 
-    return {'compiler_flags': compile_flags, 'linker_flags': link_flags}
+    return {"compiler_flags": compile_flags, "linker_flags": link_flags}
 
 
 def check_openmp_support(openmp_flags=None):
@@ -222,45 +221,44 @@ def check_openmp_support(openmp_flags=None):
         # customize_compiler().
         openmp_flags = get_openmp_flags()
 
-    compile_flags = openmp_flags.get('compiler_flags')
-    link_flags = openmp_flags.get('linker_flags')
+    compile_flags = openmp_flags.get("compiler_flags")
+    link_flags = openmp_flags.get("linker_flags")
 
     with tempfile.TemporaryDirectory() as tmp_dir:
-        start_dir = os.path.abspath('.')
+        start_dir = os.path.abspath(".")
 
         try:
             os.chdir(tmp_dir)
 
             # Write test program
-            with open('test_openmp.c', 'w') as f:
+            with open("test_openmp.c", "w") as f:
                 f.write(CCODE)
 
-            os.mkdir('objects')
+            os.mkdir("objects")
 
             # Compile, test program
-            ccompiler.compile(['test_openmp.c'], output_dir='objects',
-                              extra_postargs=compile_flags)
+            ccompiler.compile(["test_openmp.c"], output_dir="objects", extra_postargs=compile_flags)
 
             # Link test program
-            objects = glob.glob(os.path.join('objects', '*' + ccompiler.obj_extension))
-            ccompiler.link_executable(objects, 'test_openmp',
-                                      extra_postargs=link_flags)
+            objects = glob.glob(os.path.join("objects", "*" + ccompiler.obj_extension))
+            ccompiler.link_executable(objects, "test_openmp", extra_postargs=link_flags)
 
             # Run test program
-            output = subprocess.check_output('./test_openmp')
-            output = output.decode(sys.stdout.encoding or 'utf-8').splitlines()
+            output = subprocess.check_output("./test_openmp")
+            output = output.decode(sys.stdout.encoding or "utf-8").splitlines()
 
-            if 'nthreads=' in output[0]:
-                nthreads = int(output[0].strip().split('=')[1])
+            if "nthreads=" in output[0]:
+                nthreads = int(output[0].strip().split("=")[1])
                 if len(output) == nthreads:
                     is_openmp_supported = True
                 else:
-                    log.warn("Unexpected number of lines from output of test OpenMP "
-                             "program (output was {0})".format(output))
+                    log.warn(
+                        "Unexpected number of lines from output of test OpenMP "
+                        "program (output was {})".format(output)
+                    )
                     is_openmp_supported = False
             else:
-                log.warn("Unexpected output from test OpenMP "
-                         "program (output was {0})".format(output))
+                log.warn(f"Unexpected output from test OpenMP program (output was {output})")
                 is_openmp_supported = False
         except Exception:
             is_openmp_supported = False
@@ -276,7 +274,7 @@ def is_openmp_supported():
     Determine whether the build compiler has OpenMP support.
     """
     log_threshold = log.level
-    log.setLevel('CRITICAL')
+    log.setLevel("CRITICAL")
     ret = check_openmp_support()
     log.setLevel(log_threshold)
     return ret
@@ -290,7 +288,7 @@ def add_openmp_flags_if_available(extension):
     Returns `True` if the flags were added, `False` otherwise.
     """
 
-    if _EXTENSION_HELPERS_DISABLE_OPENMP_SETUP_:
+    if _EXTENSION_HELPERS_DISABLE_OPENMP_SETUP_:  # noqa: F821
         log.info("OpenMP support has been explicitly disabled.")
         return False
 
@@ -298,14 +296,15 @@ def add_openmp_flags_if_available(extension):
     using_openmp = check_openmp_support(openmp_flags=openmp_flags)
 
     if using_openmp:
-        compile_flags = openmp_flags.get('compiler_flags')
-        link_flags = openmp_flags.get('linker_flags')
+        compile_flags = openmp_flags.get("compiler_flags")
+        link_flags = openmp_flags.get("linker_flags")
         log.info("Compiling Cython/C/C++ extension with OpenMP support")
         extension.extra_compile_args.extend(compile_flags)
         extension.extra_link_args.extend(link_flags)
     else:
-        log.warn("Cannot compile Cython/C/C++ extension with OpenMP, reverting "
-                 "to non-parallel code")
+        log.warn(
+            "Cannot compile Cython/C/C++ extension with OpenMP, reverting to non-parallel code"
+        )
 
     return using_openmp
 
@@ -318,31 +317,36 @@ def is_openmp_enabled():
     Determine whether this package was built with OpenMP support.
     \"\"\"
     return {return_bool}
-"""[1:]
+"""[
+    1:
+]
 
 
-def generate_openmp_enabled_py(packagename, srcdir='.', disable_openmp=None):
+def generate_openmp_enabled_py(packagename, srcdir=".", disable_openmp=None):
     """
     Generate ``package.openmp_enabled.is_openmp_enabled``, which can then be used
     to determine, post build, whether the package was built with or without
     OpenMP support.
     """
 
-    epoch = int(os.environ.get('SOURCE_DATE_EPOCH', time.time()))
+    epoch = int(os.environ.get("SOURCE_DATE_EPOCH", time.time()))
     timestamp = datetime.datetime.utcfromtimestamp(epoch)
 
     if disable_openmp is not None:
         import builtins
+
         builtins._EXTENSION_HELPERS_DISABLE_OPENMP_SETUP_ = disable_openmp
-    if _EXTENSION_HELPERS_DISABLE_OPENMP_SETUP_:
+    if _EXTENSION_HELPERS_DISABLE_OPENMP_SETUP_:  # noqa: F821
         log.info("OpenMP support has been explicitly disabled.")
-    openmp_support = False if _EXTENSION_HELPERS_DISABLE_OPENMP_SETUP_ else is_openmp_supported()
+        openmp_support = False
+    else:
+        openmp_support = is_openmp_supported()
 
-    src = _IS_OPENMP_ENABLED_SRC.format(packagename=packagename,
-                                        timestamp=timestamp,
-                                        return_bool=openmp_support)
+    src = _IS_OPENMP_ENABLED_SRC.format(
+        packagename=packagename, timestamp=timestamp, return_bool=openmp_support
+    )
 
-    package_srcdir = os.path.join(srcdir, *packagename.split('.'))
-    is_openmp_enabled_py = os.path.join(package_srcdir, 'openmp_enabled.py')
-    with open(is_openmp_enabled_py, 'w') as f:
+    package_srcdir = os.path.join(srcdir, *packagename.split("."))
+    is_openmp_enabled_py = os.path.join(package_srcdir, "openmp_enabled.py")
+    with open(is_openmp_enabled_py, "w") as f:
         f.write(src)

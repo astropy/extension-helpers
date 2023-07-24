@@ -1,9 +1,9 @@
 from configparser import ConfigParser
 
-from ._openmp_helpers import add_openmp_flags_if_available
-from ._setup_helpers import get_compiler, get_extensions, pkg_config
-from ._utils import import_file, write_if_different
-from .version import version as __version__
+from ._openmp_helpers import add_openmp_flags_if_available  # noqa: F401
+from ._setup_helpers import get_compiler, get_extensions, pkg_config  # noqa: F401
+from ._utils import import_file, write_if_different  # noqa: F401
+from .version import version as __version__  # noqa: F401
 
 
 def _finalize_distribution_hook(distribution):
@@ -26,16 +26,17 @@ def _finalize_distribution_hook(distribution):
     if cfg.has_option("extension-helpers", "use_extension_helpers"):
         found_config = True
 
-        if cfg.get("extension-helpers", "use_extension_helpers").lower() == 'true':
+        if cfg.get("extension-helpers", "use_extension_helpers").lower() == "true":
             distribution.ext_modules = get_extensions()
 
     pyproject = Path(distribution.src_root or os.curdir, "pyproject.toml")
     if pyproject.exists() and not found_config:
         with pyproject.open("rb") as f:
             pyproject_cfg = tomli.load(f)
-            if ('tool' in pyproject_cfg and
-                    'extension-helpers' in pyproject_cfg['tool'] and
-                    'use_extension_helpers' in pyproject_cfg['tool']['extension-helpers'] and
-                    pyproject_cfg['tool']['extension-helpers']['use_extension_helpers']):
-
+            if (
+                "tool" in pyproject_cfg
+                and "extension-helpers" in pyproject_cfg["tool"]
+                and "use_extension_helpers" in pyproject_cfg["tool"]["extension-helpers"]
+                and pyproject_cfg["tool"]["extension-helpers"]["use_extension_helpers"]
+            ):
                 distribution.ext_modules = get_extensions()

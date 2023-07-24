@@ -2,14 +2,12 @@
 
 import os
 import sys
-import glob
-import contextlib
 from importlib import machinery as import_machinery
 
-__all__ = ['write_if_different', 'import_file']
+__all__ = ["write_if_different", "import_file"]
 
 
-if sys.platform == 'win32':
+if sys.platform == "win32":
     import ctypes
 
     def _has_hidden_attribute(filepath):
@@ -27,7 +25,9 @@ if sys.platform == 'win32':
         except (AttributeError, AssertionError):
             result = False
         return result
+
 else:
+
     def _has_hidden_attribute(filepath):
         return False
 
@@ -49,9 +49,9 @@ def is_path_hidden(filepath):
 
     name = os.path.basename(os.path.abspath(filepath))
     if isinstance(name, bytes):
-        is_dotted = name.startswith(b'.')
+        is_dotted = name.startswith(b".")
     else:
-        is_dotted = name.startswith('.')
+        is_dotted = name.startswith(".")
     return is_dotted or _has_hidden_attribute(filepath)
 
 
@@ -68,9 +68,7 @@ def walk_skip_hidden(top, onerror=None, followlinks=False):
     os.walk : For a description of the parameters
     """
 
-    for root, dirs, files in os.walk(
-            top, topdown=True, onerror=onerror,
-            followlinks=followlinks):
+    for root, dirs, files in os.walk(top, topdown=True, onerror=onerror, followlinks=followlinks):
         # These lists must be updated in-place so os.walk will skip
         # hidden directories
         dirs[:] = [d for d in dirs if not is_path_hidden(d)]
@@ -96,13 +94,13 @@ def write_if_different(filename, data):
     assert isinstance(data, bytes)
 
     if os.path.exists(filename):
-        with open(filename, 'rb') as fd:
+        with open(filename, "rb") as fd:
             original_data = fd.read()
     else:
         original_data = None
 
     if original_data != data:
-        with open(filename, 'wb') as fd:
+        with open(filename, "wb") as fd:
             fd.write(data)
 
 
@@ -123,14 +121,13 @@ def import_file(filename, name=None):
     # generates an underscore-separated name which is more likely to
     # be unique, and it doesn't really matter because the name isn't
     # used directly here anyway.
-    mode = 'r'
 
     if name is None:
         basename = os.path.splitext(filename)[0]
-        name = '_'.join(os.path.abspath(basename).split(os.sep)[1:])
+        name = "_".join(os.path.abspath(basename).split(os.sep)[1:])
 
     if not os.path.exists(filename):
-        raise ImportError('Could not import file {0}'.format(filename))
+        raise ImportError(f"Could not import file {filename}")
 
     loader = import_machinery.SourceFileLoader(name, filename)
     mod = loader.load_module()
