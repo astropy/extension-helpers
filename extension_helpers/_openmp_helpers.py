@@ -340,7 +340,7 @@ def generate_openmp_enabled_py(packagename, srcdir=".", disable_openmp=None):
         log.info("OpenMP support has been explicitly disabled.")
         openmp_support = False
     else:
-        is_openmp_supported()
+        openmp_support = is_openmp_supported()
 
     src = _IS_OPENMP_ENABLED_SRC.format(
         packagename=packagename, timestamp=timestamp, return_bool=openmp_support
