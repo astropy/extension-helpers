@@ -16,19 +16,21 @@ jobs:
         # Docs
         - linux: build_docs
         # Standard tests
-        - linux: py36-test-oldestdeps
-        - linux: py37-test
+        - linux: py37-test-oldestdeps
         - linux: py38-test
-        - linux: py38-test-dev
-        - macos: py38-test-dev
+        - linux: py39-test
+        - linux: py310-test
+        - linux: py311-test
+        - linux: py39-test-dev
+        - macos: py39-test-dev
           posargs: --openmp-expected=False
-        - windows: py36-test
+        - windows: py38-test
           runs-on: windows-2019
-        - windows: py38-test-dev
+        - windows: py39-test-dev
           runs-on: windows-2019
         # Test with more compilers, for the OpenMP helpers
-        - macos: py38-test-osxclang-conda
-        - linux: py38-test-linuxgcc-conda
+        - macos: py39-test-osxclang-conda
+        - linux: py39-test-linuxgcc-conda
         # Test downstream packages
         - linux: py39-downstream
   publish:
