@@ -45,3 +45,13 @@ It is also possible to enable extension-helpers in ``setup.cfg`` instead of
 
     [extension-helpers]
     use_extension_helpers = true
+
+Moreover, one can also enable extension-helpers in ``pyproject.toml`` by adding
+the following configuration to the ``pyproject.toml`` file::
+
+    [tool.extension-helpers]
+    use_extension_helpers = true
+
+.. note::
+  For backwards compatibility, the setting of ``use_extension_helpers`` in
+  ``setup.cfg`` will override any setting of it in ``pyproject.toml``.

@@ -11,11 +11,31 @@ def _finalize_distribution_hook(distribution):
     Entry point for setuptools which allows extension-helpers to be enabled
     from setup.cfg without the need for setup.py.
     """
+    import os
+    from pathlib import Path
+
+    import tomli
+
     config_files = distribution.find_config_files()
     if len(config_files) == 0:
         return
+
     cfg = ConfigParser()
     cfg.read(config_files[0])
-    if (cfg.has_option("extension-helpers", "use_extension_helpers") and
-            cfg.get("extension-helpers", "use_extension_helpers").lower() == 'true'):
-        distribution.ext_modules = get_extensions()
+    found_config = False
+    if cfg.has_option("extension-helpers", "use_extension_helpers"):
+        found_config = True
+
+        if cfg.get("extension-helpers", "use_extension_helpers").lower() == 'true':
+            distribution.ext_modules = get_extensions()
+
+    pyproject = Path(distribution.src_root or os.curdir, "pyproject.toml")
+    if pyproject.exists() and not found_config:
+        with pyproject.open("rb") as f:
+            pyproject_cfg = tomli.load(f)
+            if ('tool' in pyproject_cfg and
+                    'extension-helpers' in pyproject_cfg['tool'] and
+                    'use_extension_helpers' in pyproject_cfg['tool']['extension-helpers'] and
+                    pyproject_cfg['tool']['extension-helpers']['use_extension_helpers']):
+
+                distribution.ext_modules = get_extensions()

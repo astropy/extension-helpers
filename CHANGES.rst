@@ -5,6 +5,8 @@
   recommends the ``-Qopenmp`` flag rather than ``-fopenmp`` for greater
   performance.
 
+* Add support for enabling extension-helpers from pyproject.toml. [#48]
+
 1.0.0 (2022-03-16)
 ------------------
 
