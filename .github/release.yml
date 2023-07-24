@@ -3,12 +3,15 @@ changelog:
     authors:
       - pre-commit-ci
   categories:
-    - title: Bug Fixes
-      labels:
-        - bug
     - title: New Features
       labels:
         - enhancement
+    - title: Bug Fixes
+      labels:
+        - bug
+    - title: Infrastructure
+      labels:
+        - infrastructure
     - title: Documentation
       labels:
         - Documentation
