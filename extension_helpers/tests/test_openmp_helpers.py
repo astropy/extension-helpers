@@ -13,14 +13,13 @@ def openmp_expected(request):
     try:
         openmp_expected = request.config.getoption("--openmp-expected")
         if openmp_expected is not None:
-            return openmp_expected.lower() == 'true'
+            return openmp_expected.lower() == "true"
     except ValueError:
         return None
 
 
 def test_add_openmp_flags_if_available(openmp_expected):
-
-    using_openmp = add_openmp_flags_if_available(Extension('test', []))
+    using_openmp = add_openmp_flags_if_available(Extension("test", []))
 
     # Make sure that on Travis (Linux) and AppVeyor OpenMP does get used (for
     # MacOS X usually it will not work but this will depend on the compiler).
@@ -31,13 +30,12 @@ def test_add_openmp_flags_if_available(openmp_expected):
 
 
 def test_generate_openmp_enabled_py(openmp_expected):
-
     # Test file generation
-    generate_openmp_enabled_py('')
-    assert os.path.isfile('openmp_enabled.py')
+    generate_openmp_enabled_py("")
+    assert os.path.isfile("openmp_enabled.py")
 
     # Load openmp_enabled file as a module to check the result
-    loader = machinery.SourceFileLoader('openmp_enabled', 'openmp_enabled.py')
+    loader = machinery.SourceFileLoader("openmp_enabled", "openmp_enabled.py")
     mod = types.ModuleType(loader.name)
     loader.exec_module(mod)
 

@@ -16,7 +16,7 @@ from setuptools.command.build_ext import new_compiler
 
 from ._utils import import_file, walk_skip_hidden
 
-__all__ = ['get_compiler', 'get_extensions', 'pkg_config']
+__all__ = ["get_compiler", "get_extensions", "pkg_config"]
 
 log = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ def get_compiler():
     return new_compiler().compiler_type
 
 
-def get_extensions(srcdir='.'):
+def get_extensions(srcdir="."):
     """
     Collect all extensions from Cython files and ``setup_package.py`` files.
 
@@ -57,13 +57,13 @@ def get_extensions(srcdir='.'):
     packages = find_packages(srcdir)
 
     # Update package_dir if the package lies in a subdirectory
-    if srcdir != '.':
-        package_dir[''] = srcdir
+    if srcdir != ".":
+        package_dir[""] = srcdir
 
     for setuppkg in iter_setup_packages(srcdir, packages):
         # get_extensions must include any Cython extensions by their .pyx
         # filename.
-        if hasattr(setuppkg, 'get_extensions'):
+        if hasattr(setuppkg, "get_extensions"):
             ext_modules.extend(setuppkg.get_extensions())
 
     # Locate any .pyx files not already specified, and add their extensions in.
@@ -71,6 +71,7 @@ def get_extensions(srcdir='.'):
     includes = []
     try:
         import numpy
+
         includes = [numpy.get_include()]
     except ImportError:
         pass
@@ -80,31 +81,34 @@ def get_extensions(srcdir='.'):
     # Now remove extensions that have the special name 'skip_cython', as they
     # exist Only to indicate that the cython extensions shouldn't be built
     for i, ext in reversed(list(enumerate(ext_modules))):
-        if ext.name == 'skip_cython':
+        if ext.name == "skip_cython":
             del ext_modules[i]
 
     # On Microsoft compilers, we need to pass the '/MANIFEST'
     # commandline argument.  This was the default on MSVC 9.0, but is
     # now required on MSVC 10.0, but it doesn't seem to hurt to add
     # it unconditionally.
-    if get_compiler() == 'msvc':
+    if get_compiler() == "msvc":
         for ext in ext_modules:
-            ext.extra_link_args.append('/MANIFEST')
+            ext.extra_link_args.append("/MANIFEST")
 
     if len(ext_modules) > 0:
         main_package_dir = min(packages, key=len)
-        src_path = os.path.join(os.path.dirname(__file__), 'src')
-        shutil.copy(os.path.join(src_path, 'compiler.c'),
-                    os.path.join(srcdir, main_package_dir, '_compiler.c'))
-        ext = Extension(main_package_dir + '.compiler_version',
-                        [os.path.join(main_package_dir, '_compiler.c')])
+        src_path = os.path.join(os.path.dirname(__file__), "src")
+        shutil.copy(
+            os.path.join(src_path, "compiler.c"),
+            os.path.join(srcdir, main_package_dir, "_compiler.c"),
+        )
+        ext = Extension(
+            main_package_dir + ".compiler_version", [os.path.join(main_package_dir, "_compiler.c")]
+        )
         ext_modules.append(ext)
 
     return ext_modules
 
 
 def iter_setup_packages(srcdir, packages):
-    """ A generator that finds and imports all of the ``setup_package.py``
+    """A generator that finds and imports all of the ``setup_package.py``
     modules in the source packages.
 
     Returns
@@ -116,13 +120,12 @@ def iter_setup_packages(srcdir, packages):
     """
 
     for packagename in packages:
-        package_parts = packagename.split('.')
+        package_parts = packagename.split(".")
         package_path = os.path.join(srcdir, *package_parts)
-        setup_package = os.path.join(package_path, 'setup_package.py')
+        setup_package = os.path.join(package_path, "setup_package.py")
 
         if os.path.isfile(setup_package):
-            module = import_file(setup_package,
-                                 name=packagename + '.setup_package')
+            module = import_file(setup_package, name=packagename + ".setup_package")
             yield module
 
 
@@ -141,17 +144,16 @@ def iter_pyx_files(package_dir, package_name):
     """
     for dirpath, dirnames, filenames in walk_skip_hidden(package_dir):
         for fn in filenames:
-            if fn.endswith('.pyx'):
+            if fn.endswith(".pyx"):
                 fullfn = os.path.join(dirpath, fn)
                 # Package must match file name
-                extmod = '.'.join([package_name, fn[:-4]])
+                extmod = ".".join([package_name, fn[:-4]])
                 yield (extmod, fullfn)
 
         break  # Don't recurse into subdirectories
 
 
-def get_cython_extensions(srcdir, packages, prevextensions=tuple(),
-                          extincludedirs=None):
+def get_cython_extensions(srcdir, packages, prevextensions=tuple(), extincludedirs=None):
     """
     Looks for Cython files and generates Extensions if needed.
 
@@ -184,24 +186,23 @@ def get_cython_extensions(srcdir, packages, prevextensions=tuple(),
 
     for ext in prevextensions:
         for s in ext.sources:
-            if s.endswith(('.pyx', '.c', '.cpp')):
+            if s.endswith((".pyx", ".c", ".cpp")):
                 sourcepath = os.path.realpath(os.path.splitext(s)[0])
                 prevsourcepaths.append(sourcepath)
 
     for package_name in packages:
-        package_parts = package_name.split('.')
+        package_parts = package_name.split(".")
         package_path = os.path.join(srcdir, *package_parts)
 
         for extmod, pyxfn in iter_pyx_files(package_path, package_name):
             sourcepath = os.path.realpath(os.path.splitext(pyxfn)[0])
             if sourcepath not in prevsourcepaths:
-                ext_modules.append(Extension(extmod, [pyxfn],
-                                             include_dirs=extincludedirs))
+                ext_modules.append(Extension(extmod, [pyxfn], include_dirs=extincludedirs))
 
     return ext_modules
 
 
-def pkg_config(packages, default_libraries, executable='pkg-config'):
+def pkg_config(packages, default_libraries, executable="pkg-config"):
     """
     Uses pkg-config to update a set of distutils Extension arguments
     to include the flags necessary to link against the given packages.
@@ -233,9 +234,14 @@ def pkg_config(packages, default_libraries, executable='pkg-config'):
           the compiler
     """
 
-    flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries',
-                '-D': 'define_macros', '-U': 'undef_macros'}
-    command = "{} --libs --cflags {}".format(executable, ' '.join(packages)),
+    flag_map = {
+        "-I": "include_dirs",
+        "-L": "library_dirs",
+        "-l": "libraries",
+        "-D": "define_macros",
+        "-U": "undef_macros",
+    }
+    command = f"{executable} --libs --cflags {' '.join(packages)}"
 
     result = defaultdict(list)
 
@@ -244,23 +250,21 @@ def pkg_config(packages, default_libraries, executable='pkg-config'):
         output = pipe.communicate()[0].strip()
     except subprocess.CalledProcessError as e:
         lines = [
-            ("{} failed. This may cause the build to fail below."
-             .format(executable)),
+            (f"{executable} failed. This may cause the build to fail below."),
             f"  command: {e.cmd}",
             f"  returncode: {e.returncode}",
-            f"  output: {e.output}"
-            ]
-        log.warn('\n'.join(lines))
-        result['libraries'].extend(default_libraries)
+            f"  output: {e.output}",
+        ]
+        log.warn("\n".join(lines))
+        result["libraries"].extend(default_libraries)
     else:
         if pipe.returncode != 0:
             lines = [
-                "pkg-config could not lookup up package(s) {}.".format(
-                    ", ".join(packages)),
-                "This may cause the build to fail below."
-                ]
-            log.warn('\n'.join(lines))
-            result['libraries'].extend(default_libraries)
+                f"pkg-config could not lookup up package(s) {', '.join(packages)}.",
+                "This may cause the build to fail below.",
+            ]
+            log.warn("\n".join(lines))
+            result["libraries"].extend(default_libraries)
         else:
             for token in output.split():
                 # It's not clear what encoding the output of
@@ -270,13 +274,13 @@ def pkg_config(packages, default_libraries, executable='pkg-config'):
                 # that includes directories or filenames), but this is
                 # just conjecture, as the pkg-config documentation
                 # doesn't seem to address it.
-                arg = token[:2].decode('ascii')
+                arg = token[:2].decode("ascii")
                 value = token[2:].decode(sys.getfilesystemencoding())
                 if arg in flag_map:
-                    if arg == '-D':
-                        value = tuple(value.split('=', 1))
+                    if arg == "-D":
+                        value = tuple(value.split("=", 1))
                     result[flag_map[arg]].append(value)
                 else:
-                    result['extra_compile_args'].append(value)
+                    result["extra_compile_args"].append(value)
 
     return result
