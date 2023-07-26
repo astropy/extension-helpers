@@ -35,7 +35,7 @@ support.
 
 
 def _abi_to_version_info(abi):
-    match = re.fullmatch(r'^cp(\d)(\d)$', abi)
+    match = re.fullmatch(r'^cp(\d)(\d+)$', abi)
     if match is None:
         return None
     else:
