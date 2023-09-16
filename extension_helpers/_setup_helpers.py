@@ -95,7 +95,7 @@ def get_extensions(srcdir="."):
     if len(ext_modules) > 0:
         main_package_dir = min(packages, key=len)
         src_path = os.path.join(os.path.dirname(__file__), "src")
-        shutil.copy(
+        shutil.copyfile(
             os.path.join(src_path, "compiler.c"),
             os.path.join(srcdir, main_package_dir, "_compiler.c"),
         )
