@@ -46,7 +46,7 @@ def get_extensions(srcdir="."):
     This function obtains that information by iterating through all
     packages in ``srcdir`` and locating a ``setup_package.py`` module.
     This module can contain the ``get_extensions()`` function which returns
-    a list of :class:`distutils.core.Extension` objects.
+    a list of :class:`setuptools.Extension` objects.
 
     """
     ext_modules = []
@@ -163,11 +163,11 @@ def get_cython_extensions(srcdir, packages, prevextensions=tuple(), extincludedi
         Path to the root of the source directory to search.
     prevextensions : list
         The extensions that are already defined, as a list of of
-        `~distutils.core.Extension` objects.  Any .pyx files already here will
+        `~setuptools.Extension` objects.  Any .pyx files already here will
         be ignored.
     extincludedirs : list or None
         Directories to include as the `include_dirs` argument to the generated
-        `~distutils.core.Extension` objects, as a list of strings.
+        `~setuptools.Extension` objects, as a list of strings.
 
     Returns
     -------
@@ -204,7 +204,7 @@ def get_cython_extensions(srcdir, packages, prevextensions=tuple(), extincludedi
 
 def pkg_config(packages, default_libraries, executable="pkg-config"):
     """
-    Uses pkg-config to update a set of distutils Extension arguments
+    Uses pkg-config to update a set of setuptools Extension arguments
     to include the flags necessary to link against the given packages.
 
     If the pkg-config lookup fails, default_libraries is applied to
@@ -223,7 +223,7 @@ def pkg_config(packages, default_libraries, executable="pkg-config"):
     -------
     config : dict
         A dictionary containing keyword arguments to
-        :class:`~distutils.core.Extension`.  These entries include:
+        :class:`~setuptools.Extension`.  These entries include:
 
         - ``include_dirs``: A list of include directories
         - ``library_dirs``: A list of library directories

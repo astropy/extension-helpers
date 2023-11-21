@@ -23,7 +23,7 @@ used to collect package extensions. Defining functions is then done in two ways:
 
 * For other extensions, you can create ``setup_package.py`` files anywhere
   in your package, and these files can then include a ``get_extensions``
-  function that returns a list of :class:`distutils.core.Extension` objects.
+  function that returns a list of :class:`setuptools.Extension` objects.
 
 In the second case, the idea is that for large packages, extensions can be defined
 in the relevant sub-packages rather than having to all be listed in the main
