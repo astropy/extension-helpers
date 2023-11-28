@@ -369,14 +369,16 @@ def test_only_pyproject(tmpdir, pyproject_use_helpers):
     if pyproject_use_helpers is None:
         extension_helpers_option = ""
     else:
-        extension_helpers_option = dedent(f"""
+        extension_helpers_option = dedent(
+            f"""
         [tool.extension-helpers]
         use_extension_helpers = {str(pyproject_use_helpers).lower()}
-        """)
+        """
+        )
 
     test_pkg.join("pyproject.toml").write(
-            dedent(
-                f"""\
+        dedent(
+            f"""\
             [project]
             name = "{package_name}"
             version = "0.1"
@@ -390,8 +392,10 @@ def test_only_pyproject(tmpdir, pyproject_use_helpers):
                         "cython"]
             build-backend = 'setuptools.build_meta'
 
-            """) + extension_helpers_option
+            """
         )
+        + extension_helpers_option
+    )
 
     install_temp = test_pkg.mkdir("install_temp")
 
