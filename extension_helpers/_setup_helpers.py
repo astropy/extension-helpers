@@ -216,7 +216,7 @@ def pkg_config(packages, default_libraries, executable="pkg-config"):
         The pkg-config packages to look up, as a list of strings.
 
     default_libraries : list
-        The ibrary names to use if the pkg-config lookup fails, a a list of
+        The library names to use if the pkg-config lookup fails, a list of
         strings.
 
     Returns
