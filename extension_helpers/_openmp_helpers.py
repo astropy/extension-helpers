@@ -79,7 +79,7 @@ def _get_flag_value_from_var(flag, var, delim=" "):
     Notes
     -----
     Environment variables are first checked in ``os.environ[var]``, then in
-    ``distutils.sysconfig.get_config_var(var)``.
+    ``sysconfig.get_config_var(var)``.
 
     This function is not supported on Windows.
     """

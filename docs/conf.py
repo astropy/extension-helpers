@@ -15,7 +15,10 @@ extensions = [
     "sphinx_automodapi.automodapi",
 ]
 
-intersphinx_mapping = {"python": ("https://docs.python.org/3/", None)}
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3/", None),
+    "setuptools": ("https://setuptools.pypa.io/en/latest/", None),
+}
 
 # The suffix(es) of source filenames.
 source_suffix = ".rst"
