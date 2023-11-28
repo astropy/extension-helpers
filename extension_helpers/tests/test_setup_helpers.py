@@ -351,6 +351,8 @@ def test_only_pyproject(tmpdir, pyproject_use_helpers):
     setup.py and without a setup.cfg file.
     """
 
+    pytest.importorskip("setuptools", minversion="62.0")
+
     package_name = "helpers_test_package_" + str(uuid.uuid4()).replace("-", "_")
 
     test_pkg = tmpdir.mkdir("test_pkg")
