@@ -16,18 +16,16 @@ def _finalize_distribution_hook(distribution):
 
     import tomli
 
-    config_files = distribution.find_config_files()
-    if len(config_files) == 0:
-        return
-
-    cfg = ConfigParser()
-    cfg.read(config_files[0])
     found_config = False
-    if cfg.has_option("extension-helpers", "use_extension_helpers"):
-        found_config = True
 
-        if cfg.get("extension-helpers", "use_extension_helpers").lower() == "true":
-            distribution.ext_modules = get_extensions()
+    config_files = distribution.find_config_files()
+    if len(config_files) > 0:
+        cfg = ConfigParser()
+        cfg.read(config_files[0])
+        if cfg.has_option("extension-helpers", "use_extension_helpers"):
+            found_config = True
+            if cfg.get("extension-helpers", "use_extension_helpers").lower() == "true":
+                distribution.ext_modules = get_extensions()
 
     pyproject = Path(distribution.src_root or os.curdir, "pyproject.toml")
     if pyproject.exists() and not found_config:

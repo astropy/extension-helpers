@@ -342,3 +342,89 @@ def test_no_setup_py(tmpdir, use_extension_helpers, pyproject_use_helpers):
                 pass
             else:
                 raise AssertionError(package_name + ".compiler_version should not exist")
+
+
+@pytest.mark.parametrize("pyproject_use_helpers", [None, False, True])
+def test_only_pyproject(tmpdir, pyproject_use_helpers):
+    """
+    Test that makes sure that extension-helpers can be enabled without a
+    setup.py and without a setup.cfg file.
+    """
+
+    package_name = "helpers_test_package_" + str(uuid.uuid4()).replace("-", "_")
+
+    test_pkg = tmpdir.mkdir("test_pkg")
+    test_pkg.mkdir(package_name).ensure("__init__.py")
+
+    simple_pyx = test_pkg.join(package_name, "simple.pyx")
+    simple_pyx.write(
+        dedent(
+            """\
+        def test():
+            pass
+    """
+        )
+    )
+
+    if pyproject_use_helpers is None:
+        extension_helpers_option = ""
+    else:
+        extension_helpers_option = dedent(f"""
+        [tool.extension-helpers]
+        use_extension_helpers = {str(pyproject_use_helpers).lower()}
+        """)
+
+    test_pkg.join("pyproject.toml").write(
+            dedent(
+                f"""\
+            [project]
+            name = "{package_name}"
+            version = "0.1"
+
+            [tool.setuptools.packages]
+            find = {{namespaces = false}}
+
+            [build-system]
+            requires = ["setuptools>=43.0.0",
+                        "wheel",
+                        "cython"]
+            build-backend = 'setuptools.build_meta'
+
+            """) + extension_helpers_option
+        )
+
+    install_temp = test_pkg.mkdir("install_temp")
+
+    with test_pkg.as_cwd():
+        # NOTE: we disable build isolation as we need to pick up the current
+        # developer version of extension-helpers
+        subprocess.call(
+            [
+                sys.executable,
+                "-m",
+                "pip",
+                "install",
+                ".",
+                "--no-build-isolation",
+                f"--target={install_temp}",
+            ]
+        )
+
+    if "" in sys.path:
+        sys.path.remove("")
+
+    sys.path.insert(0, "")
+
+    with install_temp.as_cwd():
+        importlib.import_module(package_name)
+
+        if pyproject_use_helpers:
+            compiler_version_mod = importlib.import_module(package_name + ".compiler_version")
+            assert compiler_version_mod.compiler != "unknown"
+        else:
+            try:
+                importlib.import_module(package_name + ".compiler_version")
+            except ImportError:
+                pass
+            else:
+                raise AssertionError(package_name + ".compiler_version should not exist")
