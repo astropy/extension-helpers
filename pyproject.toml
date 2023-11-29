@@ -156,7 +156,7 @@ extend-select = [
 
 [tool.ruff.lint.extend-per-file-ignores]
 "docs/conf.py" = ["F405"]  # Sphinx injects variables into namespace
-
+"extension_helpers/_openmp_helpers.py" = ["UP032"]  # Avoid using f-strings in logger
 [tool.codespell]
 ignore-words-list = """
     ccompiler,
