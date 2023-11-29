@@ -302,7 +302,7 @@ def add_openmp_flags_if_available(extension):
         extension.extra_compile_args.extend(compile_flags)
         extension.extra_link_args.extend(link_flags)
     else:
-        log.warn(
+        log.warning(
             "Cannot compile Cython/C/C++ extension with OpenMP, reverting to non-parallel code"
         )
 
@@ -330,7 +330,10 @@ def generate_openmp_enabled_py(packagename, srcdir=".", disable_openmp=None):
     """
 
     epoch = int(os.environ.get("SOURCE_DATE_EPOCH", time.time()))
-    timestamp = datetime.datetime.utcfromtimestamp(epoch)
+    if sys.version_info >= (3, 11):
+        timestamp = datetime.datetime.fromtimestamp(epoch, datetime.UTC)
+    else:
+        timestamp = datetime.datetime.utcfromtimestamp(epoch)
 
     if disable_openmp is not None:
         import builtins

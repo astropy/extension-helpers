@@ -3,6 +3,7 @@
 import os
 import sys
 from importlib import machinery as import_machinery
+from importlib.util import module_from_spec, spec_from_file_location
 
 __all__ = ["write_if_different", "import_file"]
 
@@ -130,6 +131,8 @@ def import_file(filename, name=None):
         raise ImportError(f"Could not import file {filename}")
 
     loader = import_machinery.SourceFileLoader(name, filename)
-    mod = loader.load_module()
+    spec = spec_from_file_location(name, filename)
+    mod = module_from_spec(spec)
+    loader.exec_module(mod)
 
     return mod
