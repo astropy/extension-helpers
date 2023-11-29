@@ -34,7 +34,6 @@ test = [
     "wheel",
     "pytest",
     "pytest-cov",
-    "pytest-astropy",
     "coverage>=4",
     "cython",
 ]
@@ -62,9 +61,6 @@ log_cli_level = "INFO"
 xfail_strict = true
 testpaths = ['"extension_helpers"', '"docs"']
 norecursedirs = ["build", "docs/_build"]
-astropy_header = true
-doctest_plus = "enabled"
-text_file_format = "rst"
 filterwarnings = ["error"]
 
 [tool.flake8]
