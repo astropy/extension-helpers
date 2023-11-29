@@ -260,11 +260,11 @@ def check_openmp_support(openmp_flags=None):
                 else:
                     log.warning(
                         "Unexpected number of lines from output of test OpenMP "
-                        f"program (output was {output})"
+                        "program (output was {})".format(output)
                     )
                     is_openmp_supported = False
             else:
-                log.warning(f"Unexpected output from test OpenMP program (output was {output})")
+                log.warning(f"Unexpected output from test OpenMP program (output was {0})".format(output))
                 is_openmp_supported = False
         except Exception:
             is_openmp_supported = False
