@@ -4,11 +4,11 @@ This module contains a number of utilities for use during
 setup/build/packaging that are useful to astropy as a whole.
 """
 
-import os
-import sys
-import shutil
 import logging
+import os
+import shutil
 import subprocess
+import sys
 from collections import defaultdict
 
 from setuptools import Extension, find_packages

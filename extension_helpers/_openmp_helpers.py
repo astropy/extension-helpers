@@ -11,16 +11,20 @@
 #
 # this will add the OpenMP flags if available.
 
-import os
-import sys
-import glob
-import time
-import logging
 import datetime
-import tempfile
+import glob
+import logging
+import os
 import subprocess
+import sys
+import tempfile
+import time
 
-from setuptools.command.build_ext import customize_compiler, get_config_var, new_compiler
+from setuptools.command.build_ext import (
+    customize_compiler,
+    get_config_var,
+    new_compiler,
+)
 
 from ._setup_helpers import get_compiler
 
@@ -197,7 +201,7 @@ def check_openmp_support(openmp_flags=None):
     ----------
     openmp_flags : dict, optional
         This should be a dictionary with keys ``compiler_flags`` and
-        ``linker_flags`` giving the compiliation and linking flags respectively.
+        ``linker_flags`` giving the compilation and linking flags respectively.
         These are passed as `extra_postargs` to `compile()` and
         `link_executable()` respectively. If this is not set, the flags will
         be automatically determined using environment variables.
@@ -254,7 +258,7 @@ def check_openmp_support(openmp_flags=None):
                 else:
                     log.warning(
                         "Unexpected number of lines from output of test OpenMP "
-                        "program (output was {})".format(output)
+                        f"program (output was {output})"
                     )
                     is_openmp_supported = False
             else:

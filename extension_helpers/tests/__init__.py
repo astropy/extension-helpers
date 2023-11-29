@@ -1,6 +1,6 @@
 import os
-import sys
 import subprocess as sp
+import sys
 
 import pytest
 

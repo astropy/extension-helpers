@@ -1,7 +1,6 @@
 [build-system]
 requires = ["setuptools>=43.0.0",
-            "setuptools_scm>=6.2",
-            "wheel"]
+            "setuptools_scm>=6.2"]
 build-backend = 'setuptools.build_meta'
 
 [tool.setuptools_scm]
@@ -23,3 +22,38 @@ length_sort_sections = ["future", "stdlib"]
 [tool.black]
 line-length = 100
 target-version = ['py38']
+
+
+[tool.numpydoc_validation]
+checks = [
+    "all",   # report on all checks, except the below
+    "EX01",
+    "SA01",
+    "SS06",
+    "ES01",
+    "GL08",
+]
+
+[tool.repo-review]
+ignore = [
+    "MY",    # ignore MyPy setting checks
+    "GH102", # auto-cancel of PRs
+    "PC111", # ignore using `blacken-docs` in pre-commit
+    "PC140", # ignore using `mypy` in pre-commit
+    "PC180", # ignore using `prettier` in pre-commit
+    "PC901", # ignore using custom update message (we have many of the default ones in our history already)
+    "PC170", # ignore using pygrep
+    "PY005", # ignore having a tests/ folder
+]
+
+[tool.ruff]
+
+[tool.ruff.lint]
+extend-select = [
+  "B",  # flake8-bugbear
+  "I",  # isort
+  "UP",  # pyupgrade
+]
+
+[tool.ruff.lint.extend-per-file-ignores]
+"docs/conf.py" = ["F405"]  # Sphinx injects variables into namespace
