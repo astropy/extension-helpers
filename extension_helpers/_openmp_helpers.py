@@ -11,6 +11,8 @@
 #
 # this will add the OpenMP flags if available.
 
+__doctest_skip__ = ['_get_flag_value_from_var']
+
 import datetime
 import glob
 import logging

@@ -34,6 +34,7 @@ test = [
     "wheel",
     "pytest",
     "pytest-cov",
+    "pytest-astropy",
     "coverage>=4",
     "cython",
 ]
