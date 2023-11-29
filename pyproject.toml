@@ -1,3 +1,101 @@
+[project]
+name = "extension-helpers"
+authors = [{name = "The Astropy Developers", email = "astropy.team@gmail.com"}]
+license = {text = "BSD 3-Clause License"}
+description = "Utilities for building and installing packages with compiled extensions"
+readme = "README.rst"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Framework :: Setuptools Plugin",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Archiving :: Packaging",
+]
+requires-python = ">=3.7"
+dependencies = [
+    "setuptools>=40.2",
+    "tomli>=1.0.0",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/astropy/extension-helpers"
+
+[project.entry-points."setuptools.finalize_distribution_options"]
+extension_helpers_get_extensions = "extension_helpers:_finalize_distribution_hook"
+
+[project.optional-dependencies]
+test = [
+    "wheel",
+    "pytest",
+    "pytest-cov",
+    "coverage>=4",
+    "cython",
+]
+docs = [
+    "sphinx",
+    "sphinx-automodapi",
+]
+
+[tool.setuptools]
+zip-safe = false
+provides = ["extension_helpers"]
+license-files = ["LICENSE.rst"]
+include-package-data = false
+
+[tool.setuptools.packages]
+find = {namespaces = false}
+
+[tool.setuptools.package-data]
+extension_helpers = ["src/compiler.c"]
+
+[tool.pytest.ini_options]
+minversion = "6"
+addopts = ["-ra", "--strict-config", "--strict-markers"]
+log_cli_level = "INFO"
+xfail_strict = true
+testpaths = ['"extension_helpers"', '"docs"']
+norecursedirs = ["build", "docs/_build"]
+astropy_header = true
+doctest_plus = "enabled"
+text_file_format = "rst"
+filterwarnings = ["error"]
+
+[tool.flake8]
+max-line-length = "100"
+
+[tool.coverage.run]
+omit = [
+    "extension_helpers/*/setup_package.py",
+    "extension_helpers/tests/*",
+    "extension_helpers/conftest.py",
+    "*/extension_helpers/*/setup_package.py",
+    "*/extension_helpers/tests/*",
+    "*/extension_helpers/conftest.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    # Have to re-enable the standard pragma
+    "pragma: no cover",
+    # Don't complain about packages we have installed
+    "except ImportError",
+    # Don't complain if tests don't hit assertions
+    "raise AssertionError",
+    "raise NotImplementedError",
+    # Don't complain about script hooks
+    'def main\(.*\):',
+    # Ignore branches that don't pertain to this version of Python
+    "pragma: py{ignore_python_version}",
+    # Don't complain about IPython completion helper
+    "def _ipython_key_completions_",
+]
+
 [build-system]
 requires = ["setuptools>=43.0.0",
             "setuptools_scm>=6.2"]
@@ -57,3 +155,8 @@ extend-select = [
 
 [tool.ruff.lint.extend-per-file-ignores]
 "docs/conf.py" = ["F405"]  # Sphinx injects variables into namespace
+
+[tool.codespell]
+ignore-words-list = """
+    ccompiler,
+"""

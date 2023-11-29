@@ -32,7 +32,7 @@ __all__ = ["add_openmp_flags_if_available"]
 
 try:
     # Check if this has already been instantiated, only set the default once.
-    _EXTENSION_HELPERS_DISABLE_OPENMP_SETUP_
+    _EXTENSION_HELPERS_DISABLE_OPENMP_SETUP_  # noqa
 except NameError:
     import builtins
 

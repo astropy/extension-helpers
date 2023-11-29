@@ -142,7 +142,7 @@ def iter_pyx_files(package_dir, package_name):
         on the source directory structure, and `fullfn` is the path to
         the .pyx file.
     """
-    for dirpath, dirnames, filenames in walk_skip_hidden(package_dir):
+    for dirpath, _, filenames in walk_skip_hidden(package_dir):
         for fn in filenames:
             if fn.endswith(".pyx"):
                 fullfn = os.path.join(dirpath, fn)
