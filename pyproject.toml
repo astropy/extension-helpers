@@ -16,7 +16,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: System :: Archiving :: Packaging",
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 dependencies = [
     "setuptools>=40.2",
     "tomli>=1.0.0",
