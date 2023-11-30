@@ -119,7 +119,7 @@ def get_extensions(srcdir="."):
                 fixed.append(source)
             sources.append(source)
         if fixed:
-            log.warn(
+            log.warning(
                 "Extension {} contains source files "
                 "({}) that are specified using an absolute "
                 "path, which will not be supported in future.".format(
