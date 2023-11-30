@@ -9,10 +9,20 @@ You can then add extension-helpers to the build-time dependencies in your
 ``pyproject.toml`` file::
 
     [build-system]
-    requires = ["setuptools", "wheel", "extension-helpers"]
+    requires = ["setuptools",
+                "wheel",
+                "extension-helpers==1.*"]
 
 If you have Cython extensions, you will need to make sure ``cython`` is included
 in the above list too.
+
+.. note:: It is highly recommended to pin the version of extension-helpers
+          to a major version, such as ``1.*``, since extension-helpers uses
+          `semantic versioning <https://semver.org>`_
+          and there will therefore likely be breaking changes when the major version is bumped.
+          If you do not specify any pinning, then old versions of your package that are already
+          on PyPI will no longer be installable on source without disabling the build isolation
+          and installing build dependencies manually.
 
 The main functionality in extension-helpers is the
 :func:`~extension_helpers.get_extensions` function which can be
