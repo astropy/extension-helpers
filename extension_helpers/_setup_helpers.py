@@ -104,6 +104,29 @@ def get_extensions(srcdir="."):
         )
         ext_modules.append(ext)
 
+    # Since https://github.com/astropy/extension-helpers/pull/67,
+    # extensions that used absolute paths in source names stop working.
+    # Absolute paths in source paths are undesirable but we need to
+    # preserve backward-compatibility until we bump the major release,
+    # so we check for the case of absolute paths and emit a deprecation
+    # warning for now.
+    for extension in ext_modules:
+        sources = []
+        fixed = []
+        for source in extension.sources:
+            if os.path.isabs(source):
+                source = os.path.relpath(source)
+                fixed.append(source)
+            sources.append(source)
+        if fixed:
+            log.warn("Extension {0} contains source files "
+                     "({1}) that are specified using an absolute "
+                         "path, which will not be supported in future.".format(
+                            extension.name, ', '.join(fixed)
+                         ))
+
+        extension.sources = sources
+
     return ext_modules
 
 
