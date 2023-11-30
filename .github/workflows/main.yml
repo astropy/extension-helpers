@@ -22,14 +22,14 @@ jobs:
         - linux: py310-test
         - linux: py311-test
         - linux: py312-test
-        - linux: py312-test-dev
+        - linux: py312-test-devdeps
 
-        - macos: py312-test-dev
+        - macos: py312-test-devdeps
           posargs: --openmp-expected=False
 
         - windows: py38-test
           runs-on: windows-2019
-        - windows: py312-test-dev
+        - windows: py312-test-devdeps
           runs-on: windows-2019
 
         # Test with more compilers, for the OpenMP helpers
