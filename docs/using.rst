@@ -21,7 +21,7 @@ in the above list too.
           `semantic versioning <https://semver.org>`_
           and there will therefore likely be breaking changes when the major version is bumped.
           If you do not specify any pinning, then old versions of your package that are already
-          on PyPI will no longer be installable on source without disabling the build isolation
+          on PyPI may no longer be installable on source without disabling the build isolation
           and installing build dependencies manually.
 
 The main functionality in extension-helpers is the
