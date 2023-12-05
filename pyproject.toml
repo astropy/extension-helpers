@@ -62,8 +62,6 @@ testpaths = ['"extension_helpers"', '"docs"']
 norecursedirs = ["build", "docs/_build"]
 filterwarnings = ["error"]
 
-[tool.flake8]
-max-line-length = "100"
 
 [tool.coverage.run]
 omit = [

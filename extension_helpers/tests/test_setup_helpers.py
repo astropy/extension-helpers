@@ -83,7 +83,7 @@ def _extension_test_package(tmpdir, request, extension_type="c", include_numpy=F
     extensions_list = [
         f"Extension('helpers_test_package.{os.path.splitext(extension)[0]}', "
         f"[join('helpers_test_package', '{extension}')], "
-        f"include_dirs={include_dirs})"
+        f"{include_dirs=})"
         for extension in extensions
     ]
 
