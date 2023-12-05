@@ -34,7 +34,7 @@ __all__ = ["add_openmp_flags_if_available"]
 
 try:
     # Check if this has already been instantiated, only set the default once.
-    _EXTENSION_HELPERS_DISABLE_OPENMP_SETUP_  # noqa
+    _EXTENSION_HELPERS_DISABLE_OPENMP_SETUP_  # noqa: B018
 except NameError:
     import builtins
 
@@ -264,7 +264,7 @@ def check_openmp_support(openmp_flags=None):
                     )
                     is_openmp_supported = False
             else:
-                log.warning(f"Unexpected output from test OpenMP program (output was %s)", output)
+                log.warning("Unexpected output from test OpenMP program (output was %s)", output)
                 is_openmp_supported = False
         except Exception:
             is_openmp_supported = False
