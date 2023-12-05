@@ -255,7 +255,7 @@ def pkg_config(packages, default_libraries, executable="pkg-config"):
             f"  returncode: {e.returncode}",
             f"  output: {e.output}",
         ]
-        log.warn("\n".join(lines))
+        log.warning("\n".join(lines))
         result["libraries"].extend(default_libraries)
     else:
         if pipe.returncode != 0:
@@ -263,7 +263,7 @@ def pkg_config(packages, default_libraries, executable="pkg-config"):
                 f"pkg-config could not lookup up package(s) {', '.join(packages)}.",
                 "This may cause the build to fail below.",
             ]
-            log.warn("\n".join(lines))
+            log.warning("\n".join(lines))
             result["libraries"].extend(default_libraries)
         else:
             for token in output.split():
