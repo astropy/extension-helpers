@@ -19,7 +19,7 @@ classifiers = [
 requires-python = ">=3.8"
 dependencies = [
     "setuptools>=40.2",
-    "tomli>=1.0.0",
+    "tomli>=1.0.0 ; python_version < '3.11'",
 ]
 dynamic = ["version"]
 
