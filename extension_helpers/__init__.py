@@ -1,3 +1,4 @@
+import sys
 from configparser import ConfigParser
 
 from ._openmp_helpers import add_openmp_flags_if_available  # noqa: F401
@@ -14,7 +15,10 @@ def _finalize_distribution_hook(distribution):
     import os
     from pathlib import Path
 
-    import tomli
+    if sys.version_info >= (3, 11):
+        import tomllib
+    else:
+        import tomli as tomllib
 
     found_config = False
 
@@ -30,7 +34,7 @@ def _finalize_distribution_hook(distribution):
     pyproject = Path(distribution.src_root or os.curdir, "pyproject.toml")
     if pyproject.exists() and not found_config:
         with pyproject.open("rb") as f:
-            pyproject_cfg = tomli.load(f)
+            pyproject_cfg = tomllib.load(f)
             if (
                 "tool" in pyproject_cfg
                 and "extension-helpers" in pyproject_cfg["tool"]
