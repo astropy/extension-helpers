@@ -34,7 +34,6 @@ test = [
     "wheel",
     "pytest",
     "pytest-cov",
-    "coverage>=4",
     "cython",
 ]
 docs = [
