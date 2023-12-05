@@ -252,13 +252,13 @@ def check_openmp_support(openmp_flags=None):
                 if len(output) == nthreads:
                     is_openmp_supported = True
                 else:
-                    log.warn(
+                    log.warning(
                         "Unexpected number of lines from output of test OpenMP "
                         "program (output was {})".format(output)
                     )
                     is_openmp_supported = False
             else:
-                log.warn(f"Unexpected output from test OpenMP program (output was {output})")
+                log.warning(f"Unexpected output from test OpenMP program (output was {output})")
                 is_openmp_supported = False
         except Exception:
             is_openmp_supported = False
