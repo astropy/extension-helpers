@@ -5,6 +5,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   tests:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@v1
@@ -34,7 +38,11 @@ jobs:
 
         # Test with more compilers, for the OpenMP helpers
         - macos: py39-test-osxclang-conda
+          toxdeps: 'tox>=4'
+          coverage: ''
         - linux: py39-test-linuxgcc-conda
+          toxdeps: 'tox>=4'
+          coverage: ''
 
         # Test downstream packages
         - linux: py39-downstream

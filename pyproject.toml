@@ -60,8 +60,8 @@ log_cli_level = "INFO"
 xfail_strict = true
 testpaths = ['"extension_helpers"', '"docs"']
 norecursedirs = ["build", "docs/_build"]
+markers = ["flaky"]
 filterwarnings = ["error"]
-
 
 [tool.coverage.run]
 omit = [
