@@ -115,7 +115,13 @@ def get_extensions(srcdir="."):
         fixed = []
         for source in extension.sources:
             if os.path.isabs(source):
-                source = os.path.relpath(source)
+                try:
+                    source = os.path.relpath(source)
+                except ValueError:
+                    # In some cases it's impossible to use a relative path, for
+                    # instance if the source files are on a different drive. In
+                    # this case there's not much we can do so we just proceed.
+                    pass
                 fixed.append(source)
             sources.append(source)
         if fixed:
