@@ -4,11 +4,11 @@ This module contains a number of utilities for use during
 setup/build/packaging that are useful to astropy as a whole.
 """
 
-import os
-import sys
-import shutil
 import logging
+import os
+import shutil
 import subprocess
+import sys
 from collections import defaultdict
 
 from setuptools import Extension, find_packages
@@ -142,7 +142,7 @@ def iter_pyx_files(package_dir, package_name):
         on the source directory structure, and `fullfn` is the path to
         the .pyx file.
     """
-    for dirpath, dirnames, filenames in walk_skip_hidden(package_dir):
+    for dirpath, _dirnames, filenames in walk_skip_hidden(package_dir):
         for fn in filenames:
             if fn.endswith(".pyx"):
                 fullfn = os.path.join(dirpath, fn)

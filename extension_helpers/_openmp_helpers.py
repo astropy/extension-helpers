@@ -11,16 +11,22 @@
 #
 # this will add the OpenMP flags if available.
 
-import os
-import sys
-import glob
-import time
-import logging
-import datetime
-import tempfile
-import subprocess
+__doctest_skip__ = ["_get_flag_value_from_var"]
 
-from setuptools.command.build_ext import customize_compiler, get_config_var, new_compiler
+import datetime
+import glob
+import logging
+import os
+import subprocess
+import sys
+import tempfile
+import time
+
+from setuptools.command.build_ext import (
+    customize_compiler,
+    get_config_var,
+    new_compiler,
+)
 
 from ._setup_helpers import get_compiler
 
@@ -28,7 +34,7 @@ __all__ = ["add_openmp_flags_if_available"]
 
 try:
     # Check if this has already been instantiated, only set the default once.
-    _EXTENSION_HELPERS_DISABLE_OPENMP_SETUP_
+    _EXTENSION_HELPERS_DISABLE_OPENMP_SETUP_  # noqa: B018
 except NameError:
     import builtins
 
@@ -197,7 +203,7 @@ def check_openmp_support(openmp_flags=None):
     ----------
     openmp_flags : dict, optional
         This should be a dictionary with keys ``compiler_flags`` and
-        ``linker_flags`` giving the compiliation and linking flags respectively.
+        ``linker_flags`` giving the compilation and linking flags respectively.
         These are passed as `extra_postargs` to `compile()` and
         `link_executable()` respectively. If this is not set, the flags will
         be automatically determined using environment variables.
@@ -258,7 +264,7 @@ def check_openmp_support(openmp_flags=None):
                     )
                     is_openmp_supported = False
             else:
-                log.warning(f"Unexpected output from test OpenMP program (output was {output})")
+                log.warning("Unexpected output from test OpenMP program (output was %s)", output)
                 is_openmp_supported = False
         except Exception:
             is_openmp_supported = False

@@ -4,8 +4,8 @@
 # To do this we set up a list which run_setup appends coverage objects to.
 # This is not intended to be used by packages other than extension-helpers.
 
-import os
 import glob
+import os
 
 try:
     from coverage import CoverageData

@@ -1,8 +1,8 @@
+import importlib
 import os
+import subprocess
 import sys
 import uuid
-import importlib
-import subprocess
 from textwrap import dedent
 
 import pytest
@@ -81,9 +81,9 @@ def _extension_test_package(tmpdir, request, extension_type="c", include_numpy=F
     include_dirs = ["numpy"] if include_numpy else []
 
     extensions_list = [
-        "Extension('helpers_test_package.{}', "
-        "[join('helpers_test_package', '{}')], "
-        "include_dirs={})".format(os.path.splitext(extension)[0], extension, include_dirs)
+        f"Extension('helpers_test_package.{os.path.splitext(extension)[0]}', "
+        f"[join('helpers_test_package', '{extension}')], "
+        f"{include_dirs=})"
         for extension in extensions
     ]
 
