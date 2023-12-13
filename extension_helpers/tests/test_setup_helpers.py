@@ -10,6 +10,11 @@ import pytest
 from .._setup_helpers import get_compiler, get_extensions
 from . import cleanup_import, run_setup
 
+if sys.version_info >= (3, 11):
+    from contextlib import chdir
+else:
+    from .py311_backports import chdir
+
 extension_helpers_PATH = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "..")
 )  # noqa
@@ -30,18 +35,19 @@ def test_get_compiler():
     assert get_compiler() in POSSIBLE_COMPILERS
 
 
-def _extension_test_package(tmpdir, request, extension_type="c", include_numpy=False):
+def _extension_test_package(tmp_path, request, extension_type="c", include_numpy=False):
     """Creates a simple test package with an extension module."""
 
-    test_pkg = tmpdir.mkdir("test_pkg")
-    test_pkg.mkdir("helpers_test_package").ensure("__init__.py")
+    test_pkg = tmp_path / "test_pkg"
+    os.makedirs(test_pkg / "helpers_test_package")
+    (test_pkg / "helpers_test_package" / "__init__.py").touch()
 
     # TODO: It might be later worth making this particular test package into a
     # reusable fixture for other build_ext tests
 
     if extension_type in ("c", "both"):
         # A minimal C extension for testing
-        test_pkg.join("helpers_test_package", "unit01.c").write(
+        (test_pkg / "helpers_test_package" / "unit01.c").write_text(
             dedent(
                 """\
             #include <Python.h>
@@ -63,7 +69,7 @@ def _extension_test_package(tmpdir, request, extension_type="c", include_numpy=F
 
     if extension_type in ("pyx", "both"):
         # A minimal Cython extension for testing
-        test_pkg.join("helpers_test_package", "unit02.pyx").write(
+        (test_pkg / "helpers_test_package" / "unit02.pyx").write_text(
             dedent(
                 """\
             print("Hello cruel angel.")
@@ -87,7 +93,7 @@ def _extension_test_package(tmpdir, request, extension_type="c", include_numpy=F
         for extension in extensions
     ]
 
-    test_pkg.join("helpers_test_package", "setup_package.py").write(
+    (test_pkg / "helpers_test_package" / "setup_package.py").write_text(
         dedent(
             """\
         from setuptools import Extension
@@ -100,7 +106,7 @@ def _extension_test_package(tmpdir, request, extension_type="c", include_numpy=F
         )
     )
 
-    test_pkg.join("setup.py").write(
+    (test_pkg / "setup.py").write_text(
         dedent(
             f"""\
         import sys
@@ -133,23 +139,23 @@ def _extension_test_package(tmpdir, request, extension_type="c", include_numpy=F
 
 
 @pytest.fixture
-def extension_test_package(tmpdir, request):
-    return _extension_test_package(tmpdir, request, extension_type="both")
+def extension_test_package(tmp_path, request):
+    return _extension_test_package(tmp_path, request, extension_type="both")
 
 
 @pytest.fixture
-def c_extension_test_package(tmpdir, request):
+def c_extension_test_package(tmp_path, request):
     # Check whether numpy is installed in the test environment
     has_numpy = bool(importlib.util.find_spec("numpy"))
-    return _extension_test_package(tmpdir, request, extension_type="c", include_numpy=has_numpy)
+    return _extension_test_package(tmp_path, request, extension_type="c", include_numpy=has_numpy)
 
 
 @pytest.fixture
-def pyx_extension_test_package(tmpdir, request):
-    return _extension_test_package(tmpdir, request, extension_type="pyx")
+def pyx_extension_test_package(tmp_path, request):
+    return _extension_test_package(tmp_path, request, extension_type="pyx")
 
 
-def test_cython_autoextensions(tmpdir):
+def test_cython_autoextensions(tmp_path):
     """
     Regression test for https://github.com/astropy/astropy-helpers/pull/19
 
@@ -158,11 +164,12 @@ def test_cython_autoextensions(tmpdir):
     """
 
     # Make a simple test package
-    test_pkg = tmpdir.mkdir("test_pkg")
-    test_pkg.mkdir("yoda").mkdir("luke")
-    test_pkg.ensure("yoda", "__init__.py")
-    test_pkg.ensure("yoda", "luke", "__init__.py")
-    test_pkg.join("yoda", "luke", "dagobah.pyx").write("""def testfunc(): pass""")
+
+    test_pkg = tmp_path / "test_pkg"
+    os.makedirs(test_pkg / "yoda" / "luke")
+    (test_pkg / "yoda" / "__init__.py").touch()
+    (test_pkg / "yoda" / "luke" / "__init__.py").touch()
+    (test_pkg / "yoda" / "luke" / "dagobah.pyx").write_text("""def testfunc(): pass""")
 
     # Required, currently, for get_extensions to work
     ext_modules = get_extensions(str(test_pkg))
@@ -178,9 +185,10 @@ def test_compiler_module(capsys, c_extension_test_package):
     """
 
     test_pkg = c_extension_test_package
-    install_temp = test_pkg.mkdir("install_temp")
+    install_temp = test_pkg / "install_temp"
+    os.mkdir(install_temp)
 
-    with test_pkg.as_cwd():
+    with chdir(test_pkg):
         # This is one of the simplest ways to install just a package into a
         # test directory
         run_setup(
@@ -189,16 +197,16 @@ def test_compiler_module(capsys, c_extension_test_package):
                 "install",
                 "--single-version-externally-managed",
                 f"--install-lib={install_temp}",
-                "--record={}".format(install_temp.join("record.txt")),
+                "--record={}".format(install_temp / "record.txt"),
             ],
         )
 
-    with install_temp.as_cwd():
+    with chdir(install_temp):
         import helpers_test_package
 
         # Make sure we imported the helpers_test_package package from the correct place
         dirname = os.path.abspath(os.path.dirname(helpers_test_package.__file__))
-        assert dirname == str(install_temp.join("helpers_test_package"))
+        assert dirname == str(install_temp / "helpers_test_package")
 
         import helpers_test_package.compiler_version
 
@@ -207,7 +215,7 @@ def test_compiler_module(capsys, c_extension_test_package):
 
 @pytest.mark.parametrize("use_extension_helpers", [None, False, True])
 @pytest.mark.parametrize("pyproject_use_helpers", [None, False, True])
-def test_no_setup_py(tmpdir, use_extension_helpers, pyproject_use_helpers):
+def test_no_setup_py(tmp_path, use_extension_helpers, pyproject_use_helpers):
     """
     Test that makes sure that extension-helpers can be enabled without a
     setup.py file.
@@ -215,12 +223,13 @@ def test_no_setup_py(tmpdir, use_extension_helpers, pyproject_use_helpers):
 
     package_name = "helpers_test_package_" + str(uuid.uuid4()).replace("-", "_")
 
-    test_pkg = tmpdir.mkdir("test_pkg")
-    test_pkg.mkdir(package_name).ensure("__init__.py")
+    test_pkg = tmp_path / "test_pkg"
+    os.makedirs(test_pkg / package_name)
+    (test_pkg / package_name / "__init__.py").touch()
 
-    simple_c = test_pkg.join(package_name, "simple.c")
+    simple_c = test_pkg / package_name / "simple.c"
 
-    simple_c.write(
+    simple_c.write_text(
         dedent(
             """\
         #include <Python.h>
@@ -240,7 +249,7 @@ def test_no_setup_py(tmpdir, use_extension_helpers, pyproject_use_helpers):
         )
     )
 
-    test_pkg.join(package_name, "setup_package.py").write(
+    (test_pkg / package_name / "setup_package.py").write_text(
         dedent(
             f"""\
         from setuptools import Extension
@@ -252,7 +261,7 @@ def test_no_setup_py(tmpdir, use_extension_helpers, pyproject_use_helpers):
     )
 
     if use_extension_helpers is None:
-        test_pkg.join("setup.cfg").write(
+        (test_pkg / "setup.cfg").write_text(
             dedent(
                 f"""\
             [metadata]
@@ -265,7 +274,7 @@ def test_no_setup_py(tmpdir, use_extension_helpers, pyproject_use_helpers):
             )
         )
     else:
-        test_pkg.join("setup.cfg").write(
+        (test_pkg / "setup.cfg").write_text(
             dedent(
                 f"""\
             [metadata]
@@ -282,7 +291,7 @@ def test_no_setup_py(tmpdir, use_extension_helpers, pyproject_use_helpers):
         )
 
     if pyproject_use_helpers is None:
-        test_pkg.join("pyproject.toml").write(
+        (test_pkg / "pyproject.toml").write_text(
             dedent(
                 """\
             [build-system]
@@ -293,7 +302,7 @@ def test_no_setup_py(tmpdir, use_extension_helpers, pyproject_use_helpers):
             )
         )
     else:
-        test_pkg.join("pyproject.toml").write(
+        (test_pkg / "pyproject.toml").write_text(
             dedent(
                 f"""\
             [build-system]
@@ -307,9 +316,10 @@ def test_no_setup_py(tmpdir, use_extension_helpers, pyproject_use_helpers):
             )
         )
 
-    install_temp = test_pkg.mkdir("install_temp")
+    install_temp = test_pkg / "install_temp"
+    os.mkdir(install_temp)
 
-    with test_pkg.as_cwd():
+    with chdir(test_pkg):
         # NOTE: we disable build isolation as we need to pick up the current
         # developer version of extension-helpers
         subprocess.call(
@@ -329,7 +339,7 @@ def test_no_setup_py(tmpdir, use_extension_helpers, pyproject_use_helpers):
 
     sys.path.insert(0, "")
 
-    with install_temp.as_cwd():
+    with chdir(install_temp):
         importlib.import_module(package_name)
 
         if use_extension_helpers or (use_extension_helpers is None and pyproject_use_helpers):
@@ -345,7 +355,7 @@ def test_no_setup_py(tmpdir, use_extension_helpers, pyproject_use_helpers):
 
 
 @pytest.mark.parametrize("pyproject_use_helpers", [None, False, True])
-def test_only_pyproject(tmpdir, pyproject_use_helpers):
+def test_only_pyproject(tmp_path, pyproject_use_helpers):
     """
     Test that makes sure that extension-helpers can be enabled without a
     setup.py and without a setup.cfg file.
@@ -355,11 +365,11 @@ def test_only_pyproject(tmpdir, pyproject_use_helpers):
 
     package_name = "helpers_test_package_" + str(uuid.uuid4()).replace("-", "_")
 
-    test_pkg = tmpdir.mkdir("test_pkg")
-    test_pkg.mkdir(package_name).ensure("__init__.py")
-
-    simple_pyx = test_pkg.join(package_name, "simple.pyx")
-    simple_pyx.write(
+    test_pkg = tmp_path / "test_pkg"
+    os.makedirs(test_pkg / package_name)
+    (test_pkg / package_name / "__init__.py").touch()
+    simple_pyx = test_pkg / package_name / "simple.pyx"
+    simple_pyx.write_text(
         dedent(
             """\
         def test():
@@ -379,7 +389,7 @@ def test_only_pyproject(tmpdir, pyproject_use_helpers):
         )
 
     buildtime_requirements = ["setuptools>=43.0.0", "wheel", "Cython"]
-    test_pkg.join("pyproject.toml").write(
+    (test_pkg / "pyproject.toml").write_text(
         dedent(
             f"""\
             [project]
@@ -398,9 +408,10 @@ def test_only_pyproject(tmpdir, pyproject_use_helpers):
         + extension_helpers_option
     )
 
-    install_temp = test_pkg.mkdir("install_temp")
+    install_temp = test_pkg / "install_temp"
+    os.mkdir(install_temp)
 
-    with test_pkg.as_cwd():
+    with chdir(test_pkg):
         # NOTE: we disable build isolation as we need to pick up the current
         # developer version of extension-helpers
         # In order to do so, we need to ensure that build-time dependencies are
@@ -431,7 +442,7 @@ def test_only_pyproject(tmpdir, pyproject_use_helpers):
 
     sys.path.insert(0, "")
 
-    with install_temp.as_cwd():
+    with chdir(install_temp):
         importlib.import_module(package_name)
 
         if pyproject_use_helpers:
