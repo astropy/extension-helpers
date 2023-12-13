@@ -97,8 +97,9 @@ setup(name=NAME, version=VERSION,
 """
 
 
-def create_testpackage(tmpdir, version="0.1"):
-    source = tmpdir.mkdir("testpkg")
+def create_testpackage(tmp_path, version="0.1"):
+    source = tmp_path / "testpkg"
+    os.mkdir(source)
 
     with source.as_cwd():
         source.mkdir("_extension_helpers_test_")
@@ -116,7 +117,7 @@ def create_testpackage(tmpdir, version="0.1"):
 
 
 @pytest.fixture
-def testpackage(tmpdir, version="0.1"):
+def testpackage(tmp_path, version="0.1"):
     """
     This fixture creates a simplified package called _extension_helpers_test_
     used primarily for testing ah_boostrap, but without using the
@@ -124,7 +125,7 @@ def testpackage(tmpdir, version="0.1"):
     extension_helpers package already under test.
     """
 
-    return create_testpackage(tmpdir, version=version)
+    return create_testpackage(tmp_path, version=version)
 
 
 def cleanup_import(package_name):
