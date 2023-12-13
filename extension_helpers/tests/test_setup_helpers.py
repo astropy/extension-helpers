@@ -378,6 +378,7 @@ def test_only_pyproject(tmpdir, pyproject_use_helpers):
         """
         )
 
+    buildtime_requirements = ["setuptools>=43.0.0", "wheel", "Cython"]
     test_pkg.join("pyproject.toml").write(
         dedent(
             f"""\
@@ -389,9 +390,7 @@ def test_only_pyproject(tmpdir, pyproject_use_helpers):
             find = {{namespaces = false}}
 
             [build-system]
-            requires = ["setuptools>=43.0.0",
-                        "wheel",
-                        "cython"]
+            requires = [{', '.join(f'"{_}"' for _ in buildtime_requirements)}]
             build-backend = 'setuptools.build_meta'
 
             """
@@ -404,17 +403,28 @@ def test_only_pyproject(tmpdir, pyproject_use_helpers):
     with test_pkg.as_cwd():
         # NOTE: we disable build isolation as we need to pick up the current
         # developer version of extension-helpers
-        subprocess.call(
-            [
-                sys.executable,
-                "-m",
-                "pip",
-                "install",
-                ".",
-                "--no-build-isolation",
-                f"--target={install_temp}",
-            ]
-        )
+        # In order to do so, we need to ensure that build-time dependencies are
+        # installed first
+        cmd1 = [
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            *buildtime_requirements,
+            f"--target={install_temp}",
+        ]
+        subprocess.call(cmd1)
+
+        cmd2 = [
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            ".",
+            "--no-build-isolation",
+            f"--target={install_temp}",
+        ]
+        subprocess.call(cmd2)
 
     if "" in sys.path:
         sys.path.remove("")
