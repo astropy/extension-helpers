@@ -4,6 +4,7 @@ import os
 import sys
 from importlib import machinery as import_machinery
 from importlib.util import module_from_spec, spec_from_file_location
+from pathlib import Path
 
 __all__ = ["write_if_different", "import_file"]
 
@@ -86,7 +87,7 @@ def write_if_different(filename, data):
 
     Parameters
     ----------
-    filename : str
+    filename : str | PathLike
         The file name to be written to.
     data : bytes
         The data to be written to ``filename``.
@@ -94,15 +95,16 @@ def write_if_different(filename, data):
 
     assert isinstance(data, bytes)
 
-    if os.path.exists(filename):
-        with open(filename, "rb") as fd:
-            original_data = fd.read()
+    if isinstance(filename, str):
+        filename = Path(filename)
+
+    if filename.exists():
+        original_data = filename.read_bytes()
     else:
         original_data = None
 
     if original_data != data:
-        with open(filename, "wb") as fd:
-            fd.write(data)
+        filename.write_bytes(data)
 
 
 def import_file(filename, name=None):
@@ -123,13 +125,18 @@ def import_file(filename, name=None):
     # be unique, and it doesn't really matter because the name isn't
     # used directly here anyway.
 
+    if isinstance(filename, str):
+        filename = Path(filename)
     if name is None:
-        basename = os.path.splitext(filename)[0]
-        name = "_".join(os.path.abspath(basename).split(os.sep)[1:])
+        basename = filename.parent / filename.stem
+        name = "_".join(basename.resolve().parts[1:])
 
-    if not os.path.exists(filename):
+    if not filename.exists():
         raise ImportError(f"Could not import file {filename}")
 
+    # importlib requires the filename to be a string (?)
+    # running tox tests seem to error out if filename is a Path object
+    filename = str(filename)
     loader = import_machinery.SourceFileLoader(name, filename)
     spec = spec_from_file_location(name, filename)
     mod = module_from_spec(spec)
