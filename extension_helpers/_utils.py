@@ -130,7 +130,7 @@ def import_file(filename, name=None):
     if not os.path.exists(filename):
         raise ImportError(f"Could not import file {filename}")
 
-    loader = import_machinery.SourceFileLoader(name, filename)
+    loader = import_machinery.SourceFileLoader(name, os.fspath(filename))
     spec = spec_from_file_location(name, filename)
     mod = module_from_spec(spec)
     loader.exec_module(mod)
