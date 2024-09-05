@@ -29,10 +29,8 @@ def run_cmd(cmd, args, path=None, raise_error=True):
 
     if raise_error and return_code != 0:
         raise RuntimeError(
-            "The command `{}` with args {!r} exited with code {}.\n"
-            "Stdout:\n\n{}\n\nStderr:\n\n{}".format(
-                cmd, list(args), return_code, streams[0], streams[1]
-            )
+            f"The command `{cmd}` with args {list(args)!r} exited with code {return_code}.\n"
+            f"Stdout:\n\n{streams[0]}\n\nStderr:\n\n{streams[1]}"
         )
 
     return streams + (return_code,)
