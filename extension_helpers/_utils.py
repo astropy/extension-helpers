@@ -98,14 +98,12 @@ def write_if_different(filepath, data):
     assert isinstance(data, bytes)
 
     if filepath.exists():
-        with open(filepath, "rb") as fd:
-            original_data = fd.read()
+        original_data = filepath.read_bytes()
     else:
         original_data = None
 
     if original_data != data:
-        with open(filepath, "wb") as fd:
-            fd.write(data)
+        filepath.write_bytes(data)
 
 
 def import_file(filepath, name=None):
