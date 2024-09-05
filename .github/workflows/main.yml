@@ -45,7 +45,7 @@ jobs:
           coverage: ''
 
         # Test downstream packages
-        - linux: py39-downstream
+        - linux: py312-downstream
 
   publish:
     needs: tests
