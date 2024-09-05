@@ -4,6 +4,7 @@ import os
 import sys
 from importlib import machinery as import_machinery
 from importlib.util import module_from_spec, spec_from_file_location
+from pathlib import Path
 
 __all__ = ["write_if_different", "import_file"]
 
@@ -77,7 +78,7 @@ def walk_skip_hidden(top, onerror=None, followlinks=False):
         yield root, dirs, files
 
 
-def write_if_different(filename, data):
+def write_if_different(filepath, data):
     """
     Write ``data`` to ``filename``, if the content of the file is different.
 
@@ -86,26 +87,28 @@ def write_if_different(filename, data):
 
     Parameters
     ----------
-    filename : str
+    filepath : str or `pathlib.Path`
         The file name to be written to.
     data : bytes
         The data to be written to ``filename``.
     """
 
+    filepath = Path(filepath)
+
     assert isinstance(data, bytes)
 
-    if os.path.exists(filename):
-        with open(filename, "rb") as fd:
+    if filepath.exists():
+        with open(filepath, "rb") as fd:
             original_data = fd.read()
     else:
         original_data = None
 
     if original_data != data:
-        with open(filename, "wb") as fd:
+        with open(filepath, "wb") as fd:
             fd.write(data)
 
 
-def import_file(filename, name=None):
+def import_file(filepath, name=None):
     """
     Imports a module from a single file without importing the package that
     the file is in.
@@ -123,15 +126,16 @@ def import_file(filename, name=None):
     # be unique, and it doesn't really matter because the name isn't
     # used directly here anyway.
 
+    filepath = Path(filepath)
+
     if name is None:
-        basename = os.path.splitext(filename)[0]
-        name = "_".join(os.path.abspath(basename).split(os.sep)[1:])
+        name = "_".join(filepath.resolve().with_suffix("").parts[1:])
 
-    if not os.path.exists(filename):
-        raise ImportError(f"Could not import file {filename}")
+    if not filepath.exists():
+        raise ImportError(f"Could not import file {filepath}")
 
-    loader = import_machinery.SourceFileLoader(name, filename)
-    spec = spec_from_file_location(name, filename)
+    loader = import_machinery.SourceFileLoader(name, str(filepath))
+    spec = spec_from_file_location(name, str(filepath))
     mod = module_from_spec(spec)
     loader.exec_module(mod)
 
