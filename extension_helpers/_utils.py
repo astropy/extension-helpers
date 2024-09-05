@@ -78,7 +78,7 @@ def walk_skip_hidden(top, onerror=None, followlinks=False):
         yield root, dirs, files
 
 
-def write_if_different(filepath, data):
+def write_if_different(filename, data):
     """
     Write ``data`` to ``filename``, if the content of the file is different.
 
@@ -87,13 +87,13 @@ def write_if_different(filepath, data):
 
     Parameters
     ----------
-    filepath : str or `pathlib.Path`
+    filename : str or `pathlib.Path`
         The file name to be written to.
     data : bytes
         The data to be written to ``filename``.
     """
 
-    filepath = Path(filepath)
+    filepath = Path(filename)
 
     assert isinstance(data, bytes)
 
@@ -106,7 +106,7 @@ def write_if_different(filepath, data):
         filepath.write_bytes(data)
 
 
-def import_file(filepath, name=None):
+def import_file(filename, name=None):
     """
     Imports a module from a single file without importing the package that
     the file is in.
@@ -124,7 +124,7 @@ def import_file(filepath, name=None):
     # be unique, and it doesn't really matter because the name isn't
     # used directly here anyway.
 
-    filepath = Path(filepath)
+    filepath = Path(filename)
 
     if name is None:
         name = "_".join(filepath.resolve().with_suffix("").parts[1:])
