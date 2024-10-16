@@ -1,3 +1,25 @@
+## v1.2.0 - 2024-10-16
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### New Features
+
+* Support pathlib.Path in write_if_different and import_file by @astrofrog in https://github.com/astropy/extension-helpers/pull/84
+
+#### Bug Fixes
+
+* TST: fix pyproject-only test (ensure build-time dependencies are installed) by @neutrinoceros in https://github.com/astropy/extension-helpers/pull/80
+
+#### Other Changes
+
+* TST: drop legacy pytest fixture tmpdir, use tmp_path instead by @neutrinoceros in https://github.com/astropy/extension-helpers/pull/81
+* Test downstream with Python 3.12 by @astrofrog in https://github.com/astropy/extension-helpers/pull/86
+* MNT: Use hash for Action workflow versions and update if needed by @pllim in https://github.com/astropy/extension-helpers/pull/88
+* Bump actions/checkout from 4.2.0 to 4.2.1 in /.github/workflows in the actions group by @dependabot in https://github.com/astropy/extension-helpers/pull/89
+
+**Full Changelog**: https://github.com/astropy/extension-helpers/compare/v1.1.1...v1.2.0
+
 ## v1.1.1 - 2023-12-07
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
