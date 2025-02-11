@@ -38,6 +38,7 @@ jobs:
 
         # Test with more compilers, for the OpenMP helpers
         - macos: py39-test-osxclang-conda
+          runs-on: macos-13
           toxdeps: 'tox>=4'
           coverage: ''
         - linux: py39-test-linuxgcc-conda
