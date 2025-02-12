@@ -26,9 +26,12 @@ jobs:
         - linux: py310-test
         - linux: py311-test
         - linux: py312-test
+        - linux: py313-test
         - linux: py312-test-devdeps
 
         - macos: py312-test-devdeps
+          posargs: --openmp-expected=False
+        - macos: py313-test
           posargs: --openmp-expected=False
 
         - windows: py38-test
@@ -37,7 +40,8 @@ jobs:
           runs-on: windows-2019
 
         # Test with more compilers, for the OpenMP helpers
-        - macos: py39-test-osxclang-conda
+        - macos: py311-test-osxclang-conda
+          runs-on: macos-13
           toxdeps: 'tox>=4'
           coverage: ''
         - linux: py39-test-linuxgcc-conda
