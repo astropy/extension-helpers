@@ -33,7 +33,7 @@ jobs:
           posargs: --openmp-expected=False
         - macos: py313-test
           posargs: --openmp-expected=False
-          
+
         - windows: py38-test
           runs-on: windows-2019
         - windows: py312-test-devdeps
