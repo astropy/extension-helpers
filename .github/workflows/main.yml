@@ -21,35 +21,29 @@ jobs:
 
         # Standard tests
 
-        - linux: py38-test-oldestdeps
-        - linux: py39-test
-        - linux: py310-test
+        - linux: py310-test-oldestdeps
         - linux: py311-test
         - linux: py312-test
         - linux: py313-test
-        - linux: py312-test-devdeps
+        - linux: py313-test-devdeps
 
-        - macos: py312-test-devdeps
+        - macos: py312-test
           posargs: --openmp-expected=False
-        - macos: py313-test
+        - macos: py313-test-devdeps
           posargs: --openmp-expected=False
 
-        - windows: py38-test
-          runs-on: windows-2019
+        - windows: py310-test
         - windows: py312-test-devdeps
-          runs-on: windows-2019
 
         # Test with more compilers, for the OpenMP helpers
-        - macos: py311-test-osxclang-conda
+        - macos: py313-test-osxclang-conda
           runs-on: macos-13
-          toxdeps: 'tox>=4'
           coverage: ''
-        - linux: py39-test-linuxgcc-conda
-          toxdeps: 'tox>=4'
+        - linux: py310-test-linuxgcc-conda
           coverage: ''
 
         # Test downstream packages
-        - linux: py312-downstream
+        - linux: py313-downstream
 
   publish:
     needs: tests
