@@ -25,18 +25,6 @@ __all__ = ["get_compiler", "get_extensions", "pkg_config"]
 
 log = logging.getLogger(__name__)
 
-_PEP_384_WARNING = """\
-Not targeting PEP 384 limited API. You can build one binary wheel for each \
-platform to support all Python versions by adding the following to your \
-project's setup.cfg file:
-
-    [bdist_wheel]
-    py_limited_api = cp36
-
-Replace '36' with the lowest Python major and minor version that you wish to \
-support.
-"""
-
 
 def get_compiler():
     """
