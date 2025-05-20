@@ -6,8 +6,6 @@ setup/build/packaging that are useful to astropy as a whole.
 
 import logging
 import os
-import re
-import sys
 import shutil
 import subprocess
 import sys
@@ -16,7 +14,12 @@ from collections import defaultdict
 from setuptools import Extension, find_packages
 from setuptools.command.build_ext import new_compiler
 
-from ._utils import import_file, walk_skip_hidden
+from ._utils import (
+    abi_to_versions,
+    get_limited_api_option,
+    import_file,
+    walk_skip_hidden,
+)
 
 __all__ = ["get_compiler", "get_extensions", "pkg_config"]
 
@@ -33,19 +36,6 @@ project's setup.cfg file:
 Replace '36' with the lowest Python major and minor version that you wish to \
 support.
 """
-
-
-def _abi_to_version_info(abi):
-    match = re.fullmatch(r'^cp(\d)(\d+)$', abi)
-    if match is None:
-        return None
-    else:
-        return int(match[1]), int(match[2])
-
-
-def _version_info_to_version_hex(major=0, minor=0):
-    """Returns a PY_VERSION_HEX for {major}.{minor).0"""
-    return f'0x{major:02x}{minor:02x}0000'
 
 
 def get_compiler():
@@ -163,22 +153,20 @@ def get_extensions(srcdir="."):
         extension.sources = sources
 
     use_limited_api = False
-    abi = get_distutils_option('py_limited_api', ['bdist_wheel'])
+    abi = get_limited_api_option(srcdir=srcdir)
     if abi:
-        version_info = _abi_to_version_info(abi)
-        if version_info:
-            use_limited_api = True
+        version_info, version_hex = abi_to_versions(abi)
 
-    if use_limited_api:
+        if version_info is None:
+            log.warn("Unrecognized abi version for limited API: {abi}")
+
         log.info(
-            'Targeting PEP 384 limited API supporting Python >= %d.%d',
-            *version_info)
-        version_hex = _version_info_to_version_hex(*version_info)
+            f"Targeting PEP 384 limited API supporting Python >= {version_info[0], version_info[1]}"
+        )
+
         for ext in ext_modules:
             ext.py_limited_api = True
-            ext.define_macros.append(('Py_LIMITED_API', version_hex))
-    else:
-        log.warn(_PEP_384_WARNING)
+            ext.define_macros.append(("Py_LIMITED_API", version_hex))
 
     return ext_modules
 
