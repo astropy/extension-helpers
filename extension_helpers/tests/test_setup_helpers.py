@@ -35,7 +35,13 @@ def test_get_compiler():
     assert get_compiler() in POSSIBLE_COMPILERS
 
 
-def _extension_test_package(tmp_path, request, extension_type="c", include_numpy=False):
+def _extension_test_package(
+    tmp_path,
+    request=None,
+    extension_type="c",
+    include_numpy=False,
+    include_setup_py=True,
+):
     """Creates a simple test package with an extension module."""
 
     test_pkg = tmp_path / "test_pkg"
@@ -106,24 +112,25 @@ def _extension_test_package(tmp_path, request, extension_type="c", include_numpy
         )
     )
 
-    (test_pkg / "setup.py").write_text(
-        dedent(
-            f"""\
-        import sys
-        from os.path import join
-        from setuptools import setup, find_packages
-        sys.path.insert(0, r'{extension_helpers_PATH}')
-        from extension_helpers import get_extensions
+    if include_setup_py:
+        (test_pkg / "setup.py").write_text(
+            dedent(
+                f"""\
+            import sys
+            from os.path import join
+            from setuptools import setup, find_packages
+            sys.path.insert(0, r'{extension_helpers_PATH}')
+            from extension_helpers import get_extensions
 
-        setup(
-            name='helpers_test_package',
-            version='0.1',
-            packages=find_packages(),
-            ext_modules=get_extensions()
+            setup(
+                name='helpers_test_package',
+                version='0.1',
+                packages=find_packages(),
+                ext_modules=get_extensions()
+            )
+        """
+            )
         )
-    """
-        )
-    )
 
     if "" in sys.path:
         sys.path.remove("")
@@ -133,7 +140,8 @@ def _extension_test_package(tmp_path, request, extension_type="c", include_numpy
     def finalize():
         cleanup_import("helpers_test_package")
 
-    request.addfinalizer(finalize)
+    if request:
+        request.addfinalizer(finalize)
 
     return test_pkg
 
@@ -455,3 +463,133 @@ def test_only_pyproject(tmp_path, pyproject_use_helpers):
                 pass
             else:
                 raise AssertionError(package_name + ".compiler_version should not exist")
+
+
+# Tests to make sure that limited API support works correctly
+
+
+@pytest.mark.parametrize("config", ("setup.cfg", "pyproject.toml"))
+@pytest.mark.parametrize("limited_api", (None, "cp310"))
+@pytest.mark.parametrize("extension_type", ("c", "pyx", "both"))
+def test_limited_api(tmp_path, config, limited_api, extension_type):
+
+    package = _extension_test_package(
+        tmp_path, extension_type=extension_type, include_numpy=True, include_setup_py=False
+    )
+
+    if config == "setup.cfg":
+
+        setup_cfg = dedent(
+            """\
+            [metadata]
+            name = helpers_test_package
+            version = 0.1
+
+            [options]
+            packages = find:
+
+            [extension-helpers]
+            use_extension_helpers = true
+        """
+        )
+
+        if limited_api:
+            setup_cfg += f"\n[bdist_wheel]\npy_limited_api={limited_api}"
+
+        (package / "setup.cfg").write_text(setup_cfg)
+
+        # Still require a minimal pyproject.toml file if no setup.py file
+
+        (package / "pyproject.toml").write_text(
+            dedent(
+                """
+            [build-system]
+            requires = ["setuptools>=43.0.0",
+                        "wheel"]
+            build-backend = 'setuptools.build_meta'
+
+            [tool.extension-helpers]
+            use_extension_helpers = true
+        """
+            )
+        )
+
+    elif config == "pyproject.toml":
+
+        pyproject_toml = dedent(
+            """\
+            [build-system]
+            requires = ["setuptools>=43.0.0",
+                        "wheel"]
+            build-backend = 'setuptools.build_meta'
+
+            [project]
+            name = "hehlpers_test_package"
+            version = "0.1"
+
+            [tool.setuptools.packages]
+            find = {namespaces = false}
+
+            [tool.extension-helpers]
+            use_extension_helpers = true
+            """
+        )
+
+        if limited_api:
+            pyproject_toml += f'\n[tool.distutils.bdist_wheel]\npy-limited-api = "{limited_api}"'
+
+        (package / "pyproject.toml").write_text(pyproject_toml)
+
+    with chdir(package):
+        subprocess.run([sys.executable, "-m", "build", "--wheel", "--no-isolation"], check=True)
+
+    wheels = os.listdir(package / "dist")
+
+    assert len(wheels) == 1
+    assert ("abi3" in wheels[0]) == (limited_api is not None)
+
+
+def test_limited_api_invalid_abi(tmp_path, capsys):
+
+    package = _extension_test_package(
+        tmp_path, extension_type="c", include_numpy=True, include_setup_py=False
+    )
+
+    (package / "setup.cfg").write_text(
+        dedent(
+            """\
+        [metadata]
+        name = helpers_test_package
+        version = 0.1
+
+        [options]
+        packages = find:
+
+        [extension-helpers]
+        use_extension_helpers = true
+
+        [bdist_wheel]
+        py_limited_api=invalid
+    """
+        )
+    )
+
+    (package / "pyproject.toml").write_text(
+        dedent(
+            """
+    [build-system]
+    requires = ["setuptools>=43.0.0",
+                "wheel"]
+    build-backend = 'setuptools.build_meta'
+    """
+        )
+    )
+
+    with chdir(package):
+        result = subprocess.run(
+            [sys.executable, "-m", "build", "--wheel", "--no-isolation"], stderr=subprocess.PIPE
+        )
+
+    assert result.stderr.strip().endswith(
+        b"ValueError: Unrecognized abi version for limited API: invalid"
+    )

@@ -14,7 +14,12 @@ from collections import defaultdict
 from setuptools import Extension, find_packages
 from setuptools.command.build_ext import new_compiler
 
-from ._utils import import_file, walk_skip_hidden
+from ._utils import (
+    abi_to_versions,
+    get_limited_api_option,
+    import_file,
+    walk_skip_hidden,
+)
 
 __all__ = ["get_compiler", "get_extensions", "pkg_config"]
 
@@ -134,6 +139,21 @@ def get_extensions(srcdir="."):
             )
 
         extension.sources = sources
+
+    abi = get_limited_api_option(srcdir=srcdir)
+    if abi:
+        version_info, version_hex = abi_to_versions(abi)
+
+        if version_info is None:
+            raise ValueError(f"Unrecognized abi version for limited API: {abi}")
+
+        log.info(
+            f"Targeting PEP 384 limited API supporting Python >= {version_info[0], version_info[1]}"
+        )
+
+        for ext in ext_modules:
+            ext.py_limited_api = True
+            ext.define_macros.append(("Py_LIMITED_API", version_hex))
 
     return ext_modules
 
