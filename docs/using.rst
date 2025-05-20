@@ -71,13 +71,16 @@ Python limited API
 
 Your package may opt in to the :pep:`384` Python Limited API so that a single
 binary wheel works with many different versions of Python on the same platform.
+For this to work, any C extensions you write needs to make use only of
+`certain C functions <https://docs.python.org/3/c-api/stable.html#limited-api-list>`_.
+
 To opt in to the Python Limited API, add the following standard setuptools
 option to your project's ``setup.cfg`` file::
 
     [bdist_wheel]
-    py_limited_api = cp36
+    py_limited_api = cp311
 
-Here, ``36`` denotes API compatibility with Python >= 3.6. Replace with the
+Here, ``311`` denotes API compatibility with Python >= 3.11. Replace with the
 lowest major and minor version number that you wish to support.
 
 The ``get_extensions()`` functions will automatically detect this option and
