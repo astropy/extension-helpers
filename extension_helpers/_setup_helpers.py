@@ -145,7 +145,7 @@ def get_extensions(srcdir="."):
         version_info, version_hex = abi_to_versions(abi)
 
         if version_info is None:
-            log.warn("Unrecognized abi version for limited API: {abi}")
+            raise ValueError(f"Unrecognized abi version for limited API: {abi}")
 
         log.info(
             f"Targeting PEP 384 limited API supporting Python >= {version_info[0], version_info[1]}"

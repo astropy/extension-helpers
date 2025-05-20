@@ -547,3 +547,49 @@ def test_limited_api(tmp_path, config, limited_api, extension_type):
 
     assert len(wheels) == 1
     assert ("abi3" in wheels[0]) == (limited_api is not None)
+
+
+def test_limited_api_invalid_abi(tmp_path, capsys):
+
+    package = _extension_test_package(
+        tmp_path, extension_type="c", include_numpy=True, include_setup_py=False
+    )
+
+    (package / "setup.cfg").write_text(
+        dedent(
+            """\
+        [metadata]
+        name = helpers_test_package
+        version = 0.1
+
+        [options]
+        packages = find:
+
+        [extension-helpers]
+        use_extension_helpers = true
+
+        [bdist_wheel]
+        py_limited_api=invalid
+    """
+        )
+    )
+
+    (package / "pyproject.toml").write_text(
+        dedent(
+            """
+    [build-system]
+    requires = ["setuptools>=43.0.0",
+                "wheel"]
+    build-backend = 'setuptools.build_meta'
+    """
+        )
+    )
+
+    with chdir(package):
+        result = subprocess.run(
+            [sys.executable, "-m", "build", "--wheel", "--no-isolation"], stderr=subprocess.PIPE
+        )
+
+    assert result.stderr.endswith(
+        b"ValueError: Unrecognized abi version for limited API: invalid\n"
+    )
