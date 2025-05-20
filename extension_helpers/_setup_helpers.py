@@ -43,9 +43,9 @@ def _abi_to_version_info(abi):
         return int(match[1]), int(match[2])
 
 
-def _version_info_to_version_hex(major=0, minor=0, micro=0,
-                                 releaselevel=0, serial=0):
-    return f'0x{major:0>2}{minor:0>2}{micro:0>2}{releaselevel:0>2}{serial:0>2}'
+def _version_info_to_version_hex(major=0, minor=0):
+    """Returns a PY_VERSION_HEX for {major}.{minor).0"""
+    return f'0x{major:02x}{minor:02x}0000'
 
 
 def get_compiler():
