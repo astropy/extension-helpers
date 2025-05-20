@@ -45,45 +45,43 @@ class TestGetLimitedAPIOption:
         assert get_limited_api_option(tmp_path) is None
 
     def test_empty_setup_cfg(self, tmp_path):
-        filepath = (tmp_path / "setup.cfg").write_text("")
+        (tmp_path / "setup.cfg").write_text("")
         assert get_limited_api_option(tmp_path) is None
 
     def test_empty_pyproject_toml(self, tmp_path):
-        filepath = (tmp_path / "pyproject.toml").write_text("")
+        (tmp_path / "pyproject.toml").write_text("")
         assert get_limited_api_option(tmp_path) is None
 
     def test_setup_cfg(self, tmp_path):
 
-        filepath = (tmp_path / "setup.cfg").write_text("[bdist_wheel]\npy_limited_api=cp311")
+        (tmp_path / "setup.cfg").write_text("[bdist_wheel]\npy_limited_api=cp311")
         assert get_limited_api_option(tmp_path) == "cp311"
 
         # Make sure things still work even if an empty pyproject.toml file is present
 
-        filepath = (tmp_path / "pyproject.toml").write_text("")
+        (tmp_path / "pyproject.toml").write_text("")
         assert get_limited_api_option(tmp_path) == "cp311"
 
         # And if the pyproject.toml has the right section but not the right option
 
-        filepath = (tmp_path / "setup.cfg.toml").write_text(
-            "[tool.distutils.bdist_wheel]\nspam=1\n"
-        )
+        (tmp_path / "setup.cfg.toml").write_text("[tool.distutils.bdist_wheel]\nspam=1\n")
         assert get_limited_api_option(tmp_path) == "cp311"
 
     def test_pyproject(self, tmp_path):
 
-        filepath = (tmp_path / "pyproject.toml").write_text(
+        (tmp_path / "pyproject.toml").write_text(
             '[tool.distutils.bdist_wheel]\npy-limited-api="cp312"\n'
         )
         assert get_limited_api_option(tmp_path) == "cp312"
 
         # Make sure things still work even if an empty setup.cfg file is present
 
-        filepath = (tmp_path / "setup.cfg.toml").write_text("\n")
+        (tmp_path / "setup.cfg.toml").write_text("\n")
         assert get_limited_api_option(tmp_path) == "cp312"
 
         # And if the setup.cfg has the right section but not the right option
 
-        filepath = (tmp_path / "setup.cfg.toml").write_text("[bdist_wheel]\nspam=1\n")
+        (tmp_path / "setup.cfg.toml").write_text("[bdist_wheel]\nspam=1\n")
         assert get_limited_api_option(tmp_path) == "cp312"
 
 
