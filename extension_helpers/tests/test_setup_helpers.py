@@ -590,6 +590,6 @@ def test_limited_api_invalid_abi(tmp_path, capsys):
             [sys.executable, "-m", "build", "--wheel", "--no-isolation"], stderr=subprocess.PIPE
         )
 
-    assert result.stderr.endswith(
-        b"ValueError: Unrecognized abi version for limited API: invalid\n"
+    assert result.stderr.strip().endswith(
+        b"ValueError: Unrecognized abi version for limited API: invalid"
     )
