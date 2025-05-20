@@ -469,7 +469,7 @@ def test_only_pyproject(tmp_path, pyproject_use_helpers):
 
 
 @pytest.mark.parametrize("config", ("setup.cfg", "pyproject.toml"))
-@pytest.mark.parametrize("limited_api", (None, "cp311"))
+@pytest.mark.parametrize("limited_api", (None, "cp310"))
 @pytest.mark.parametrize("extension_type", ("c", "pyx", "both"))
 def test_limited_api(tmp_path, config, limited_api, extension_type):
 
