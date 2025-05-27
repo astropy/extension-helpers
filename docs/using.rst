@@ -83,5 +83,13 @@ option to your project's ``setup.cfg`` file::
 Here, ``311`` denotes API compatibility with Python >= 3.11. Replace with the
 lowest major and minor version number that you wish to support.
 
+You can also set this option in ``pyproject.toml``, using:
+
+    [tool.distutils.bdist_wheel]
+    py-limited-api = "cp312"
+
+although note that this option is not formally documented/supported by the Python
+packaging infrastructure and may change in future.
+
 The ``get_extensions()`` functions will automatically detect this option and
 add the necessary compiler flags to build your extension modules.
