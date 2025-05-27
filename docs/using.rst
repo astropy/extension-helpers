@@ -65,3 +65,31 @@ the following configuration to the ``pyproject.toml`` file::
 .. note::
   For backwards compatibility, the setting of ``use_extension_helpers`` in
   ``setup.cfg`` will override any setting of it in ``pyproject.toml``.
+
+Python limited API
+------------------
+
+Your package may opt in to the :pep:`384` Python Limited API so that a single
+binary wheel works with many different versions of Python on the same platform.
+For this to work, any C extensions you write needs to make use only of
+`certain C functions <https://docs.python.org/3/c-api/stable.html#limited-api-list>`__.
+
+To opt in to the Python Limited API, add the following standard setuptools
+option to your project's ``setup.cfg`` file::
+
+    [bdist_wheel]
+    py_limited_api = cp311
+
+Here, ``311`` denotes API compatibility with Python >= 3.11. Replace with the
+lowest major and minor version number that you wish to support.
+
+You can also set this option in ``pyproject.toml``, using::
+
+    [tool.distutils.bdist_wheel]
+    py-limited-api = "cp312"
+
+although note that this option is not formally documented/supported by the Python
+packaging infrastructure and may change in future.
+
+The ``get_extensions()`` functions will automatically detect this option and
+add the necessary compiler flags to build your extension modules.

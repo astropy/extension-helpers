@@ -1,12 +1,20 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import os
+import re
 import sys
+from configparser import ConfigParser
 from importlib import machinery as import_machinery
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 
-__all__ = ["write_if_different", "import_file"]
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
+
+
+__all__ = ["write_if_different", "import_file", "get_limited_api_option", "abi_to_versions"]
 
 
 if sys.platform == "win32":
@@ -138,3 +146,53 @@ def import_file(filename, name=None):
     loader.exec_module(mod)
 
     return mod
+
+
+def get_limited_api_option(srcdir):
+    """
+    Checks setup.cfg and pyproject.toml files in the current directory
+    for the py_limited_api setting
+    """
+
+    srcdir = Path(srcdir)
+
+    setup_cfg = srcdir / "setup.cfg"
+
+    if setup_cfg.exists():
+        cfg = ConfigParser()
+        cfg.read(setup_cfg)
+        if cfg.has_option("bdist_wheel", "py_limited_api"):
+            return cfg.get("bdist_wheel", "py_limited_api")
+
+    pyproject = srcdir / "pyproject.toml"
+    if pyproject.exists():
+        with pyproject.open("rb") as f:
+            pyproject_cfg = tomllib.load(f)
+            if (
+                "tool" in pyproject_cfg
+                and "distutils" in pyproject_cfg["tool"]
+                and "bdist_wheel" in pyproject_cfg["tool"]["distutils"]
+                and "py-limited-api" in pyproject_cfg["tool"]["distutils"]["bdist_wheel"]
+            ):
+                return pyproject_cfg["tool"]["distutils"]["bdist_wheel"]["py-limited-api"]
+
+
+def _abi_to_version_info(abi):
+    match = re.fullmatch(r"^cp(\d)(\d+)$", abi)
+    if match is None:
+        return None
+    else:
+        return int(match[1]), int(match[2])
+
+
+def _version_info_to_version_hex(major=0, minor=0):
+    """Returns a PY_VERSION_HEX for {major}.{minor).0"""
+    return f"0x{major:02X}{minor:02X}0000"
+
+
+def abi_to_versions(abi):
+    version_info = _abi_to_version_info(abi)
+    if version_info is None:
+        return None, None
+    else:
+        return version_info, _version_info_to_version_hex(*version_info)
