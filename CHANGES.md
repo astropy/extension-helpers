@@ -1,3 +1,22 @@
+## v1.3.0 - 2025-05-27
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### New Features
+
+* Automatically set compiler flags to target PEP 384 Python limited API by @lpsinger in https://github.com/astropy/extension-helpers/pull/26
+
+#### Other Changes
+
+* Bump the actions group across 1 directory with 2 updates by @dependabot in https://github.com/astropy/extension-helpers/pull/92
+* MNT: Replace ubuntu-20.04 with ubuntu-22.04 by @pllim in https://github.com/astropy/extension-helpers/pull/100
+* Bump the actions group across 1 directory with 2 updates by @dependabot in https://github.com/astropy/extension-helpers/pull/99
+* Bump stefanzweifel/git-auto-commit-action from 5.1.0 to 5.2.0 in /.github/workflows in the actions group by @dependabot in https://github.com/astropy/extension-helpers/pull/104
+* Bump minimum version of Python to 3.10 and update versions by @astrofrog in https://github.com/astropy/extension-helpers/pull/106
+
+**Full Changelog**: https://github.com/astropy/extension-helpers/compare/v1.2.0...v1.3.0
+
 ## v1.2.0 - 2024-10-16
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
