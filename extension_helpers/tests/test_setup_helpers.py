@@ -475,7 +475,9 @@ def test_only_pyproject(tmp_path, pyproject_use_helpers):
 def test_limited_api(tmp_path, config, envvar, limited_api, extension_type):
 
     if sys.version_info < (3, 11):
-        pytest.skip("This test requires setuptools>=65.4 which is only available for Python 3.11 and later")
+        pytest.skip(
+            "This test requires setuptools>=65.4 which is only available for Python 3.11 and later"
+        )
 
     package = _extension_test_package(
         tmp_path, extension_type=extension_type, include_numpy=True, include_setup_py=False
