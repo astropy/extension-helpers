@@ -469,9 +469,15 @@ def test_only_pyproject(tmp_path, pyproject_use_helpers):
 
 
 @pytest.mark.parametrize("config", ("setup.cfg", "pyproject.toml"))
+@pytest.mark.parametrize("envvar", (False, True))
 @pytest.mark.parametrize("limited_api", (None, "cp310"))
 @pytest.mark.parametrize("extension_type", ("c", "pyx", "both"))
-def test_limited_api(tmp_path, config, limited_api, extension_type):
+def test_limited_api(tmp_path, config, envvar, limited_api, extension_type):
+
+    if sys.version_info < (3, 11):
+        pytest.skip(
+            "This test requires setuptools>=65.4 which is only available for Python 3.11 and later"
+        )
 
     package = _extension_test_package(
         tmp_path, extension_type=extension_type, include_numpy=True, include_setup_py=False
@@ -493,8 +499,12 @@ def test_limited_api(tmp_path, config, limited_api, extension_type):
         """
         )
 
-        if limited_api:
+        if limited_api and not envvar:
             setup_cfg += f"\n[bdist_wheel]\npy_limited_api={limited_api}"
+        elif envvar:
+            # Make sure if we are using the environment variable that it takes
+            # precedence over this setting (this only works for setup.cfg)
+            setup_cfg += "\n[bdist_wheel]\npy_limited_api=cp35"
 
         (package / "setup.cfg").write_text(setup_cfg)
 
@@ -524,7 +534,7 @@ def test_limited_api(tmp_path, config, limited_api, extension_type):
             build-backend = 'setuptools.build_meta'
 
             [project]
-            name = "hehlpers_test_package"
+            name = "helpers_test_package"
             version = "0.1"
 
             [tool.setuptools.packages]
@@ -535,13 +545,23 @@ def test_limited_api(tmp_path, config, limited_api, extension_type):
             """
         )
 
-        if limited_api:
+        if limited_api and not envvar:
             pyproject_toml += f'\n[tool.distutils.bdist_wheel]\npy-limited-api = "{limited_api}"'
 
         (package / "pyproject.toml").write_text(pyproject_toml)
 
+    env = os.environ.copy()
+
+    if envvar:
+        if limited_api:
+            env["EXTENSION_HELPERS_PY_LIMITED_API"] = limited_api
+        else:
+            env["EXTENSION_HELPERS_PY_LIMITED_API"] = ""
+
     with chdir(package):
-        subprocess.run([sys.executable, "-m", "build", "--wheel", "--no-isolation"], check=True)
+        subprocess.run(
+            [sys.executable, "-m", "build", "--wheel", "--no-isolation"], env=env, check=True
+        )
 
     wheels = os.listdir(package / "dist")
 

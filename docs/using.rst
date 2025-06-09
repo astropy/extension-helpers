@@ -91,5 +91,16 @@ You can also set this option in ``pyproject.toml``, using::
 although note that this option is not formally documented/supported by the Python
 packaging infrastructure and may change in future.
 
-The ``get_extensions()`` functions will automatically detect this option and
+Alternatively, if you use setuptools 65.4 or later, you can dynamically opt in
+to limited API builds by setting the ``EXTENSION_HELPERS_PY_LIMITED_API``
+environment variable, e.g.::
+
+    EXTENSION_HELPERS_PY_LIMITED_API='cp311' python -m build
+
+If you define ``py_limited_api`` in ``setup.cfg``, you can use
+``EXTENSION_HELPERS_PY_LIMITED_API`` to opt **out** of the limited API builds
+by setting ``EXTENSION_HELPERS_PY_LIMITED_API`` to an empty string. There is however
+no way to opt out if you use ``py-limited-api`` in ``pyproject.toml``.
+
+The ``get_extensions()`` functions will automatically detect these options and
 add the necessary compiler flags to build your extension modules.
