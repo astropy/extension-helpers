@@ -3,6 +3,7 @@
 import os
 import re
 import sys
+import tempfile
 from configparser import ConfigParser
 from importlib import machinery as import_machinery
 from importlib.util import module_from_spec, spec_from_file_location
@@ -153,6 +154,21 @@ def get_limited_api_option(srcdir):
     Checks setup.cfg and pyproject.toml files in the current directory
     for the py_limited_api setting
     """
+
+    py_limited_api = os.environ.get("EXTENSION_HELPERS_PY_LIMITED_API")
+
+    if py_limited_api is not None:
+
+        if "DIST_EXTRA_CONFIG" in os.environ:
+            raise ValueError(
+                "Cannot use EXTENSION_HELPERS_PY_LIMITED_API if DIST_EXTRA_CONFIG is already defined"
+            )
+
+        dist_extra_config_filename = tempfile.mktemp()
+        with open(dist_extra_config_filename, "w") as f:
+            f.write(f"[bdist_wheel]\npy_limited_api={py_limited_api}")
+        os.environ["DIST_EXTRA_CONFIG"] = dist_extra_config_filename
+        return py_limited_api
 
     srcdir = Path(srcdir)
 

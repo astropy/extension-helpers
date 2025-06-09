@@ -91,5 +91,10 @@ You can also set this option in ``pyproject.toml``, using::
 although note that this option is not formally documented/supported by the Python
 packaging infrastructure and may change in future.
 
-The ``get_extensions()`` functions will automatically detect this option and
+Alternatively, you can dynamically opt in to limited API builds by setting
+the ``EXTENSION_HELPERS_PY_LIMITED_API`` environment variable, e.g.::
+
+    EXTENSION_HELPERS_PY_LIMITED_API='cp311' python -m build
+
+The ``get_extensions()`` functions will automatically detect these options and
 add the necessary compiler flags to build your extension modules.

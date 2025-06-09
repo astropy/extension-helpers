@@ -469,9 +469,10 @@ def test_only_pyproject(tmp_path, pyproject_use_helpers):
 
 
 @pytest.mark.parametrize("config", ("setup.cfg", "pyproject.toml"))
+@pytest.mark.parametrize("envvar", (False, True))
 @pytest.mark.parametrize("limited_api", (None, "cp310"))
 @pytest.mark.parametrize("extension_type", ("c", "pyx", "both"))
-def test_limited_api(tmp_path, config, limited_api, extension_type):
+def test_limited_api(tmp_path, config, envvar, limited_api, extension_type):
 
     package = _extension_test_package(
         tmp_path, extension_type=extension_type, include_numpy=True, include_setup_py=False
@@ -493,7 +494,7 @@ def test_limited_api(tmp_path, config, limited_api, extension_type):
         """
         )
 
-        if limited_api:
+        if limited_api and not envvar:
             setup_cfg += f"\n[bdist_wheel]\npy_limited_api={limited_api}"
 
         (package / "setup.cfg").write_text(setup_cfg)
@@ -535,13 +536,20 @@ def test_limited_api(tmp_path, config, limited_api, extension_type):
             """
         )
 
-        if limited_api:
+        if limited_api and not envvar:
             pyproject_toml += f'\n[tool.distutils.bdist_wheel]\npy-limited-api = "{limited_api}"'
 
         (package / "pyproject.toml").write_text(pyproject_toml)
 
+    env = os.environ.copy()
+
+    if envvar and limited_api:
+        env["EXTENSION_HELPERS_PY_LIMITED_API"] = limited_api
+
     with chdir(package):
-        subprocess.run([sys.executable, "-m", "build", "--wheel", "--no-isolation"], check=True)
+        subprocess.run(
+            [sys.executable, "-m", "build", "--wheel", "--no-isolation"], env=env, check=True
+        )
 
     wheels = os.listdir(package / "dist")
 
