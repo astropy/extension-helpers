@@ -1,3 +1,14 @@
+## v1.4.0 - 2025-06-09
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### New Features
+
+* Allow opting in to limited API builds with EXTENSION_HELPERS_PY_LIMITED_API by @astrofrog in https://github.com/astropy/extension-helpers/pull/110
+
+**Full Changelog**: https://github.com/astropy/extension-helpers/compare/v1.3.0...v1.4.0
+
 ## v1.3.0 - 2025-05-27
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
