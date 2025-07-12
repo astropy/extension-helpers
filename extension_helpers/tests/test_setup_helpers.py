@@ -473,11 +473,7 @@ def test_only_pyproject(tmp_path, pyproject_use_helpers):
 @pytest.mark.parametrize("limited_api", (None, "cp310"))
 @pytest.mark.parametrize("extension_type", ("c", "pyx", "both"))
 def test_limited_api(tmp_path, config, envvar, limited_api, extension_type):
-
-    if sys.version_info < (3, 11):
-        pytest.skip(
-            "This test requires setuptools>=65.4 which is only available for Python 3.11 and later"
-        )
+    pytest.importorskip("setuptools", minversion="65.4")
 
     package = _extension_test_package(
         tmp_path, extension_type=extension_type, include_numpy=True, include_setup_py=False
