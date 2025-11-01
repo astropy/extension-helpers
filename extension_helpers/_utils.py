@@ -9,6 +9,8 @@ from importlib import machinery as import_machinery
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 
+from runtime_introspect import runtime_feature_set
+
 if sys.version_info >= (3, 11):
     import tomllib
 else:
@@ -157,8 +159,15 @@ def get_limited_api_option(srcdir):
 
     py_limited_api = os.environ.get("EXTENSION_HELPERS_PY_LIMITED_API")
 
-    if py_limited_api is not None:
+    if py_limited_api == "auto":
+        fs = runtime_feature_set()
+        if fs.supports("py-limited-api"):
+            vi = sys.version_info
+            py_limited_api = f"cp{vi.major}{vi.minor}"
+        else:
+            py_limited_api = None
 
+    if py_limited_api is not None:
         if "DIST_EXTRA_CONFIG" in os.environ:
             raise ValueError(
                 "Cannot use EXTENSION_HELPERS_PY_LIMITED_API if DIST_EXTRA_CONFIG is already defined"
