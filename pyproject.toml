@@ -1,14 +1,14 @@
 [project]
 name = "extension-helpers"
 authors = [{name = "The Astropy Developers", email = "astropy.team@gmail.com"}]
-license = {text = "BSD 3-Clause License"}
+license = "BSD-3-Clause"
+license-files = ["LICENSE.rst", "licenses/LICENSE_ASTROSCRAPPY.rst"]
 description = "Utilities for building and installing packages with compiled extensions"
 readme = "README.rst"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Framework :: Setuptools Plugin",
-    "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
@@ -45,7 +45,6 @@ docs = [
 [tool.setuptools]
 zip-safe = false
 provides = ["extension_helpers"]
-license-files = ["LICENSE.rst"]
 include-package-data = false
 
 [tool.setuptools.packages]
@@ -92,7 +91,7 @@ exclude_lines = [
 ]
 
 [build-system]
-requires = ["setuptools>=43.0.0",
+requires = ["setuptools>=77.0.1",
             "setuptools_scm>=6.2"]
 build-backend = 'setuptools.build_meta'
 
