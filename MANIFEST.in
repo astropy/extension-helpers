@@ -1,7 +1,5 @@
 include README.rst
 include CHANGES.rst
-include LICENSE.rst
-recursive-include licenses *
 
 include ah_bootstrap.py
 
