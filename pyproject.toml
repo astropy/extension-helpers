@@ -135,6 +135,8 @@ ignore = [
     "PC180", # ignore using `prettier` in pre-commit
     "PC901", # ignore using custom update message (we have many of the default ones in our history already)
     "PC170", # ignore using pygrep
+    "PP006", # ignore defining dev dependency group
+    "PP304", # ignore setting log_level in pytest
     "PY005", # ignore having a tests/ folder
 ]
 

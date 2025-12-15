@@ -16,9 +16,6 @@ jobs:
       posargs: --openmp-expected=True
       coverage: codecov
       envs: |
-        # Code style
-        - linux: style
-
         # Standard tests
 
         - linux: py310-test-oldestdeps
