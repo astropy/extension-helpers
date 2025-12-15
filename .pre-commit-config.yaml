@@ -39,6 +39,3 @@ repos:
     hooks:
       - id: ruff-check
         args: ["--fix", "--show-fixes"]
-
-ci:
-  autofix_prs: false
