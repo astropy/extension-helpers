@@ -1,3 +1,8 @@
+ci:
+  autofix_prs: false
+  autoupdate_schedule: monthly
+  autofix_commit_msg: "style: pre-commit fixes"
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -32,7 +37,7 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: "v0.14.9"
     hooks:
-      - id: ruff
+      - id: ruff-check
         args: ["--fix", "--show-fixes"]
 
 ci:
