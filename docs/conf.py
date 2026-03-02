@@ -1,11 +1,11 @@
-from pkg_resources import get_distribution
+from importlib.metadata import version as get_version
 
 project = "extension-helpers"
 copyright = "2019, The Astropy Developers"
 author = "The Astropy Developers"
 
 # We need to get the version number from the package
-version = release = get_distribution("extension-helpers").version
+version = release = get_version("extension-helpers")
 
 extensions = [
     "sphinx.ext.autodoc",
