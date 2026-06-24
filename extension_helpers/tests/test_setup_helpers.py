@@ -53,9 +53,7 @@ def _extension_test_package(
 
     if extension_type in ("c", "both"):
         # A minimal C extension for testing
-        (test_pkg / "helpers_test_package" / "unit01.c").write_text(
-            dedent(
-                """\
+        (test_pkg / "helpers_test_package" / "unit01.c").write_text(dedent("""\
             #include <Python.h>
 
             static struct PyModuleDef moduledef = {
@@ -69,19 +67,13 @@ def _extension_test_package(
             PyInit_unit01(void) {
                 return PyModule_Create(&moduledef);
             }
-        """
-            )
-        )
+        """))
 
     if extension_type in ("pyx", "both"):
         # A minimal Cython extension for testing
-        (test_pkg / "helpers_test_package" / "unit02.pyx").write_text(
-            dedent(
-                """\
+        (test_pkg / "helpers_test_package" / "unit02.pyx").write_text(dedent("""\
             print("Hello cruel angel.")
-        """
-            )
-        )
+        """))
 
     if extension_type == "c":
         extensions = ["unit01.c"]
@@ -99,23 +91,15 @@ def _extension_test_package(
         for extension in extensions
     ]
 
-    (test_pkg / "helpers_test_package" / "setup_package.py").write_text(
-        dedent(
-            """\
+    (test_pkg / "helpers_test_package" / "setup_package.py").write_text(dedent("""\
         from setuptools import Extension
         from os.path import join
         def get_extensions():
             return [{}]
-    """.format(
-                ", ".join(extensions_list)
-            )
-        )
-    )
+    """.format(", ".join(extensions_list))))
 
     if include_setup_py:
-        (test_pkg / "setup.py").write_text(
-            dedent(
-                f"""\
+        (test_pkg / "setup.py").write_text(dedent(f"""\
             import sys
             from os.path import join
             from setuptools import setup, find_packages
@@ -128,9 +112,7 @@ def _extension_test_package(
                 packages=find_packages(),
                 ext_modules=get_extensions()
             )
-        """
-            )
-        )
+        """))
 
     if "" in sys.path:
         sys.path.remove("")
@@ -237,9 +219,7 @@ def test_no_setup_py(tmp_path, use_extension_helpers, pyproject_use_helpers):
 
     simple_c = test_pkg / package_name / "simple.c"
 
-    simple_c.write_text(
-        dedent(
-            """\
+    simple_c.write_text(dedent("""\
         #include <Python.h>
 
         static struct PyModuleDef moduledef = {
@@ -253,38 +233,26 @@ def test_no_setup_py(tmp_path, use_extension_helpers, pyproject_use_helpers):
         PyInit_simple(void) {
             return PyModule_Create(&moduledef);
         }
-    """
-        )
-    )
+    """))
 
-    (test_pkg / package_name / "setup_package.py").write_text(
-        dedent(
-            f"""\
+    (test_pkg / package_name / "setup_package.py").write_text(dedent(f"""\
         from setuptools import Extension
         from os.path import join
         def get_extensions():
             return [Extension('{package_name}.simple', [join('{package_name}', 'simple.c')])]
-        """
-        )
-    )
+        """))
 
     if use_extension_helpers is None:
-        (test_pkg / "setup.cfg").write_text(
-            dedent(
-                f"""\
+        (test_pkg / "setup.cfg").write_text(dedent(f"""\
             [metadata]
             name = {package_name}
             version = 0.1
 
             [options]
             packages = find:
-        """
-            )
-        )
+        """))
     else:
-        (test_pkg / "setup.cfg").write_text(
-            dedent(
-                f"""\
+        (test_pkg / "setup.cfg").write_text(dedent(f"""\
             [metadata]
             name = {package_name}
             version = 0.1
@@ -294,25 +262,17 @@ def test_no_setup_py(tmp_path, use_extension_helpers, pyproject_use_helpers):
 
             [extension-helpers]
             use_extension_helpers = {str(use_extension_helpers).lower()}
-        """
-            )
-        )
+        """))
 
     if pyproject_use_helpers is None:
-        (test_pkg / "pyproject.toml").write_text(
-            dedent(
-                """\
+        (test_pkg / "pyproject.toml").write_text(dedent("""\
             [build-system]
             requires = ["setuptools>=43.0.0",
                         "wheel"]
             build-backend = 'setuptools.build_meta'
-        """
-            )
-        )
+        """))
     else:
-        (test_pkg / "pyproject.toml").write_text(
-            dedent(
-                f"""\
+        (test_pkg / "pyproject.toml").write_text(dedent(f"""\
             [build-system]
             requires = ["setuptools>=43.0.0",
                         "wheel"]
@@ -320,9 +280,7 @@ def test_no_setup_py(tmp_path, use_extension_helpers, pyproject_use_helpers):
 
             [tool.extension-helpers]
             use_extension_helpers = {str(pyproject_use_helpers).lower()}
-        """
-            )
-        )
+        """))
 
     install_temp = test_pkg / "install_temp"
     os.mkdir(install_temp)
@@ -377,29 +335,21 @@ def test_only_pyproject(tmp_path, pyproject_use_helpers):
     os.makedirs(test_pkg / package_name)
     (test_pkg / package_name / "__init__.py").touch()
     simple_pyx = test_pkg / package_name / "simple.pyx"
-    simple_pyx.write_text(
-        dedent(
-            """\
+    simple_pyx.write_text(dedent("""\
         def test():
             pass
-    """
-        )
-    )
+    """))
 
     if pyproject_use_helpers is None:
         extension_helpers_option = ""
     else:
-        extension_helpers_option = dedent(
-            f"""
+        extension_helpers_option = dedent(f"""
         [tool.extension-helpers]
         use_extension_helpers = {str(pyproject_use_helpers).lower()}
-        """
-        )
+        """)
 
     buildtime_requirements = ["setuptools>=43.0.0", "wheel", "Cython"]
-    (test_pkg / "pyproject.toml").write_text(
-        dedent(
-            f"""\
+    (test_pkg / "pyproject.toml").write_text(dedent(f"""\
             [project]
             name = "{package_name}"
             version = "0.1"
@@ -411,10 +361,7 @@ def test_only_pyproject(tmp_path, pyproject_use_helpers):
             requires = [{', '.join(f'"{_}"' for _ in buildtime_requirements)}]
             build-backend = 'setuptools.build_meta'
 
-            """
-        )
-        + extension_helpers_option
-    )
+            """) + extension_helpers_option)
 
     install_temp = test_pkg / "install_temp"
     os.mkdir(install_temp)
@@ -481,8 +428,7 @@ def test_limited_api(tmp_path, config, envvar, limited_api, extension_type):
 
     if config == "setup.cfg":
 
-        setup_cfg = dedent(
-            """\
+        setup_cfg = dedent("""\
             [metadata]
             name = helpers_test_package
             version = 0.1
@@ -492,8 +438,7 @@ def test_limited_api(tmp_path, config, envvar, limited_api, extension_type):
 
             [extension-helpers]
             use_extension_helpers = true
-        """
-        )
+        """)
 
         if limited_api and not envvar:
             setup_cfg += f"\n[bdist_wheel]\npy_limited_api={limited_api}"
@@ -506,9 +451,7 @@ def test_limited_api(tmp_path, config, envvar, limited_api, extension_type):
 
         # Still require a minimal pyproject.toml file if no setup.py file
 
-        (package / "pyproject.toml").write_text(
-            dedent(
-                """
+        (package / "pyproject.toml").write_text(dedent("""
             [build-system]
             requires = ["setuptools>=43.0.0",
                         "wheel"]
@@ -516,14 +459,11 @@ def test_limited_api(tmp_path, config, envvar, limited_api, extension_type):
 
             [tool.extension-helpers]
             use_extension_helpers = true
-        """
-            )
-        )
+        """))
 
     elif config == "pyproject.toml":
 
-        pyproject_toml = dedent(
-            """\
+        pyproject_toml = dedent("""\
             [build-system]
             requires = ["setuptools>=43.0.0",
                         "wheel"]
@@ -538,8 +478,7 @@ def test_limited_api(tmp_path, config, envvar, limited_api, extension_type):
 
             [tool.extension-helpers]
             use_extension_helpers = true
-            """
-        )
+            """)
 
         if limited_api and not envvar:
             pyproject_toml += f'\n[tool.distutils.bdist_wheel]\npy-limited-api = "{limited_api}"'
@@ -571,9 +510,7 @@ def test_limited_api_invalid_abi(tmp_path, capsys):
         tmp_path, extension_type="c", include_numpy=True, include_setup_py=False
     )
 
-    (package / "setup.cfg").write_text(
-        dedent(
-            """\
+    (package / "setup.cfg").write_text(dedent("""\
         [metadata]
         name = helpers_test_package
         version = 0.1
@@ -586,20 +523,14 @@ def test_limited_api_invalid_abi(tmp_path, capsys):
 
         [bdist_wheel]
         py_limited_api=invalid
-    """
-        )
-    )
+    """))
 
-    (package / "pyproject.toml").write_text(
-        dedent(
-            """
+    (package / "pyproject.toml").write_text(dedent("""
     [build-system]
     requires = ["setuptools>=43.0.0",
                 "wheel"]
     build-backend = 'setuptools.build_meta'
-    """
-        )
-    )
+    """))
 
     with chdir(package):
         result = subprocess.run(

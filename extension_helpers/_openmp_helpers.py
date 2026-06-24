@@ -323,9 +323,7 @@ def is_openmp_enabled():
     Determine whether this package was built with OpenMP support.
     \"\"\"
     return {return_bool}
-"""[
-    1:
-]
+"""[1:]
 
 
 def generate_openmp_enabled_py(packagename, srcdir=".", disable_openmp=None):
