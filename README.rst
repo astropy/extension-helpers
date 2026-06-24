@@ -19,4 +19,4 @@ building Python packages with compiled C/Cython extensions. It is developed by
 the Astropy project but is intended to be general and usable by any Python
 package.
 
-For more information, see the documentation at http://extension-helpers.readthedocs.io
+For more information, see the documentation at https://extension-helpers.readthedocs.io
