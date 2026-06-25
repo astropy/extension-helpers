@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   tests:
-    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@4193751d511425d4edc1d5657c24b2128d49b017  # v2.6.4
+    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@6ae6691dfae7f207db7b694e2bbe1c515cf907ab  # v3.0.0
     with:
       posargs: --openmp-expected=True
       coverage: codecov
@@ -44,7 +44,7 @@ jobs:
 
   publish:
     needs: tests
-    uses: OpenAstronomy/github-actions-workflows/.github/workflows/publish_pure_python.yml@4193751d511425d4edc1d5657c24b2128d49b017  # v2.6.4
+    uses: OpenAstronomy/github-actions-workflows/.github/workflows/publish_pure_python.yml@6ae6691dfae7f207db7b694e2bbe1c515cf907ab  # v3.0.0
     with:
       test_extras: test
       test_command: pytest --pyargs extension_helpers
