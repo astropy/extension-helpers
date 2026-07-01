@@ -75,13 +75,20 @@ struct module_state {
 #endif
 };
 
+static int m_exec(PyObject *module) {
+  return PyModule_AddStringConstant(module, "compiler", COMPILER);
+}
+
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "compiler_version",
     NULL,
     sizeof(struct module_state),
     NULL,
-    NULL,
+    (PyModuleDef_Slot []) {
+        {Py_mod_exec, m_exec},
+        {/* terminal element, all NULL */}
+    },
     NULL,
     NULL,
     NULL
@@ -94,14 +101,5 @@ PyInit_compiler_version(void)
 
 
 {
-  PyObject* m;
-
-  m = PyModule_Create(&moduledef);
-
-  if (m == NULL)
-    INITERROR;
-
-  PyModule_AddStringConstant(m, "compiler", COMPILER);
-
-  return m;
+  return PyModuleDef_Init(&moduledef);
 }
