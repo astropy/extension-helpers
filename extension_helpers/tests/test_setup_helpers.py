@@ -17,7 +17,7 @@ else:
 
 extension_helpers_PATH = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "..")
-)  # noqa
+)
 
 
 def teardown_module(module):
