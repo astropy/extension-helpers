@@ -105,7 +105,8 @@ def get_extensions(srcdir="."):
             os.path.join(srcdir, main_package_dir, "_compiler.c"),
         )
         ext = Extension(
-            main_package_dir + ".compiler_version", [os.path.join(main_package_dir, "_compiler.c")]
+            main_package_dir + ".compiler_version",
+            [os.path.join(srcdir, main_package_dir, "_compiler.c")],
         )
         ext_modules.append(ext)
 
