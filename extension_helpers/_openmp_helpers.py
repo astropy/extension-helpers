@@ -143,7 +143,7 @@ def _check_if_compiler_is_icx():
 
             # Compile program
             ccompiler.compile(["test_icx.c"], output_dir="objects")
-        except Exception:
+        except Exception:  # noqa: BLE001
             is_icx = False
         else:
             is_icx = True
@@ -266,7 +266,7 @@ def check_openmp_support(openmp_flags=None):
             else:
                 log.warning("Unexpected output from test OpenMP program (output was %s)", output)
                 is_openmp_supported = False
-        except Exception:
+        except Exception:  # noqa: BLE001
             is_openmp_supported = False
 
         finally:
@@ -337,7 +337,7 @@ def generate_openmp_enabled_py(packagename, srcdir=".", disable_openmp=None):
     if sys.version_info >= (3, 11):
         timestamp = datetime.datetime.fromtimestamp(epoch, datetime.UTC)
     else:
-        timestamp = datetime.datetime.utcfromtimestamp(epoch)
+        timestamp = datetime.datetime.utcfromtimestamp(epoch)  # noqa: DTZ004
 
     if disable_openmp is not None:
         import builtins

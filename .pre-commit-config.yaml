@@ -27,7 +27,7 @@ repos:
       - id: sp-repo-review
 
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.2
+    rev: v2.4.3
     hooks:
       - id: codespell
         args: ["--write-changes"]
@@ -35,7 +35,7 @@ repos:
           - tomli
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.15.20"
+    rev: "v0.16.1"
     hooks:
       - id: ruff-check
         args: ["--fix", "--show-fixes"]

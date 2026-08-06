@@ -15,9 +15,7 @@ if sys.version_info >= (3, 11):
 else:
     from .py311_backports import chdir
 
-extension_helpers_PATH = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..")
-)  # noqa
+extension_helpers_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 
 def teardown_module(module):
@@ -534,7 +532,9 @@ def test_limited_api_invalid_abi(tmp_path, capsys):
 
     with chdir(package):
         result = subprocess.run(
-            [sys.executable, "-m", "build", "--wheel", "--no-isolation"], stderr=subprocess.PIPE
+            [sys.executable, "-m", "build", "--wheel", "--no-isolation"],
+            stderr=subprocess.PIPE,
+            check=False,
         )
 
     assert b"ValueError: Unrecognized abi version for limited API: invalid" in result.stderr

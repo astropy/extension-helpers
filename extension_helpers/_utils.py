@@ -15,7 +15,7 @@ else:
     import tomli as tomllib
 
 
-__all__ = ["write_if_different", "import_file", "get_limited_api_option", "abi_to_versions"]
+__all__ = ["abi_to_versions", "get_limited_api_option", "import_file", "write_if_different"]
 
 
 if sys.platform == "win32":
