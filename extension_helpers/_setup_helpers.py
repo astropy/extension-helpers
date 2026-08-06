@@ -205,7 +205,7 @@ def iter_pyx_files(package_dir, package_name):
         break  # Don't recurse into subdirectories
 
 
-def get_cython_extensions(srcdir, packages, prevextensions=tuple(), extincludedirs=None):
+def get_cython_extensions(srcdir, packages, prevextensions=(), extincludedirs=None):
     """
     Looks for Cython files and generates Extensions if needed.
 
