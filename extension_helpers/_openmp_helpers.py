@@ -336,8 +336,8 @@ def generate_openmp_enabled_py(packagename, srcdir=".", disable_openmp=None):
     epoch = int(os.environ.get("SOURCE_DATE_EPOCH", time.time()))
     if sys.version_info >= (3, 11):
         timestamp = datetime.datetime.fromtimestamp(epoch, datetime.UTC)
-    else:  # noqa: DTZ004
-        timestamp = datetime.datetime.utcfromtimestamp(epoch)
+    else:
+        timestamp = datetime.datetime.utcfromtimestamp(epoch)  # noqa: DTZ004
 
     if disable_openmp is not None:
         import builtins
