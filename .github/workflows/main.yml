@@ -28,15 +28,15 @@ jobs:
         - linux: py313-test-cov-devdeps
           coverage: codecov
 
-        - macos: py312-test
+        - macos: py312-test-cov
           posargs: --openmp-expected=False
           coverage: codecov
-        - macos: py313-test-devdeps
+        - macos: py313-test-cov-devdeps
           posargs: --openmp-expected=False
           coverage: codecov
 
         - windows: py310-test
-        - windows: py312-test-devdeps
+        - windows: py312-test-cov-devdeps
           coverage: codecov
 
         # Test with more compilers, for the OpenMP helpers
