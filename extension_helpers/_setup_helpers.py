@@ -141,7 +141,7 @@ def get_extensions(srcdir="."):
 
         extension.sources = sources
 
-    abi = get_limited_api_option(srcdir=srcdir)
+    abi = get_limited_api_option(srcdir=".")
     if abi:
         version_info, version_hex = abi_to_versions(abi)
 
