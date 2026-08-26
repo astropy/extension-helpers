@@ -44,10 +44,7 @@ def _extension_test_package(
     """Creates a simple test package with an extension module."""
 
     test_pkg = tmp_path / "test_pkg"
-    if src_layout:
-        src_dir = test_pkg / "src"
-    else:
-        src_dir = test_pkg
+    src_dir = test_pkg / "src" if src_layout else test_pkg
     os.makedirs(src_dir / "helpers_test_package")
     (src_dir / "helpers_test_package" / "__init__.py").touch()
 
@@ -87,9 +84,11 @@ def _extension_test_package(
 
     include_dirs = ["numpy"] if include_numpy else []
 
+    pkg_dir = "'src', 'helpers_test_package'" if src_layout else "'helpers_test_package'"
+
     extensions_list = [
         f"Extension('helpers_test_package.{os.path.splitext(extension)[0]}', "
-        f"[join('{'src' if src_layout else '.'}', 'helpers_test_package', '{extension}')], "
+        f"[join({pkg_dir}, '{extension}')], "
         f"{include_dirs=})"
         for extension in extensions
     ]
@@ -102,6 +101,12 @@ def _extension_test_package(
     """.format(", ".join(extensions_list))))
 
     if include_setup_py:
+        if src_layout:
+            packages_args = "packages=find_packages('src'), package_dir={'': 'src'}"
+            extensions_args = "get_extensions('src')"
+        else:
+            packages_args = "packages=find_packages()"
+            extensions_args = "get_extensions()"
         (test_pkg / "setup.py").write_text(dedent(f"""\
             import sys
             from os.path import join
@@ -112,8 +117,8 @@ def _extension_test_package(
             setup(
                 name='helpers_test_package',
                 version='0.1',
-                packages=find_packages(),
-                ext_modules=get_extensions({"'src'" if src_layout else ''})
+                {packages_args},
+                ext_modules={extensions_args}
             )
         """))
 
@@ -426,6 +431,9 @@ def test_only_pyproject(tmp_path, pyproject_use_helpers):
 def test_limited_api(tmp_path, config, envvar, limited_api, extension_type, src_layout):
     pytest.importorskip("setuptools", minversion="65.4")
 
+    if src_layout and config != "setup.py":
+        pytest.skip("src layout is only supported when using setup.py")
+
     package = _extension_test_package(
         tmp_path,
         extension_type=extension_type,
@@ -437,24 +445,13 @@ def test_limited_api(tmp_path, config, envvar, limited_api, extension_type, src_
     if config == "setup.py":
 
         if limited_api and not envvar:
-            (package / "setup.cfg").write_text(f"\n[bdist_wheel]\npy_limited_api={limited_api}")
+            (package / "setup.cfg").write_text(f"[bdist_wheel]\npy_limited_api={limited_api}")
         elif envvar:
             # Make sure if we are using the environment variable that it takes
             # precedence over this setting (this only works for setup.cfg)
-            (package / "setup.cfg").write_text("\n[bdist_wheel]\npy_limited_api=cp35")
+            (package / "setup.cfg").write_text("[bdist_wheel]\npy_limited_api=cp35")
 
-        # Still require a minimal pyproject.toml file if no setup.py file
-
-        (package / "pyproject.toml").write_text(dedent("""
-            [build-system]
-            requires = ["setuptools>=43.0.0",
-                        "wheel"]
-            build-backend = 'setuptools.build_meta'
-        """))
-
-    if config == "setup.cfg":
-        if src_layout:
-            pytest.skip("src layout not supported for setup.cfg style")
+    elif config == "setup.cfg":
 
         setup_cfg = dedent("""\
             [metadata]
@@ -477,18 +474,7 @@ def test_limited_api(tmp_path, config, envvar, limited_api, extension_type, src_
 
         (package / "setup.cfg").write_text(setup_cfg)
 
-        # Still require a minimal pyproject.toml file if no setup.py file
-
-        (package / "pyproject.toml").write_text(dedent("""
-            [build-system]
-            requires = ["setuptools>=43.0.0",
-                        "wheel"]
-            build-backend = 'setuptools.build_meta'
-        """))
-
     elif config == "pyproject.toml":
-        if src_layout:
-            pytest.skip("src layout not supported for setup.cfg style")
 
         pyproject_toml = dedent("""\
             [build-system]
@@ -511,6 +497,15 @@ def test_limited_api(tmp_path, config, envvar, limited_api, extension_type, src_
             pyproject_toml += f'\n[tool.distutils.bdist_wheel]\npy-limited-api = "{limited_api}"'
 
         (package / "pyproject.toml").write_text(pyproject_toml)
+
+    if config != "pyproject.toml":
+        # A minimal pyproject.toml file is still required
+        (package / "pyproject.toml").write_text(dedent("""
+            [build-system]
+            requires = ["setuptools>=43.0.0",
+                        "wheel"]
+            build-backend = 'setuptools.build_meta'
+        """))
 
     env = os.environ.copy()
 
