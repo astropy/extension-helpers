@@ -433,9 +433,6 @@ def test_only_pyproject(tmp_path, pyproject_use_helpers):
 def test_limited_api(tmp_path, config, envvar, limited_api, extension_type, src_layout):
     pytest.importorskip("setuptools", minversion="65.4")
 
-    if src_layout and config != "setup.py":
-        pytest.skip("src layout is only supported when using setup.py")
-
     package = _extension_test_package(
         tmp_path,
         extension_type=extension_type,
@@ -455,13 +452,18 @@ def test_limited_api(tmp_path, config, envvar, limited_api, extension_type, src_
 
     elif config == "setup.cfg":
 
-        setup_cfg = dedent("""\
+        setup_cfg = dedent(f"""\
             [metadata]
             name = helpers_test_package
             version = 0.1
 
             [options]
             packages = find:
+            package_dir =
+                = {'src' if src_layout else '.'}
+
+            [options.packages.find]
+            where = {'src' if src_layout else '.'}
 
             [extension-helpers]
             use_extension_helpers = true
@@ -478,7 +480,7 @@ def test_limited_api(tmp_path, config, envvar, limited_api, extension_type, src_
 
     elif config == "pyproject.toml":
 
-        pyproject_toml = dedent("""\
+        pyproject_toml = dedent(f"""\
             [build-system]
             requires = ["setuptools>=43.0.0",
                         "wheel"]
@@ -488,8 +490,9 @@ def test_limited_api(tmp_path, config, envvar, limited_api, extension_type, src_
             name = "helpers_test_package"
             version = "0.1"
 
-            [tool.setuptools.packages]
-            find = {namespaces = false}
+            [tool.setuptools.packages.find]
+            where = ["{'src' if src_layout else '.'}"]
+            namespaces = false
 
             [tool.extension-helpers]
             use_extension_helpers = true
