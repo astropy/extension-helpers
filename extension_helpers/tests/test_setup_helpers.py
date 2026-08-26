@@ -2,7 +2,9 @@ import importlib
 import os
 import subprocess
 import sys
+import sysconfig
 import uuid
+import zipfile
 from textwrap import dedent
 
 import pytest
@@ -524,6 +526,16 @@ def test_limited_api(tmp_path, config, envvar, limited_api, extension_type, src_
 
     assert len(wheels) == 1
     assert ("abi3" in wheels[0]) == (limited_api is not None)
+
+    # The wheel tag above only reflects the bdist_wheel option, so also check
+    # that the extensions themselves were built for the limited API, in which
+    # case they don't use the default (version-specific) extension suffix
+    ext_suffix = sysconfig.get_config_var("EXT_SUFFIX")
+    with zipfile.ZipFile(package / "dist" / wheels[0]) as wheel:
+        ext_files = [f for f in wheel.namelist() if f.endswith((".so", ".pyd"))]
+    assert ext_files
+    for filename in ext_files:
+        assert filename.endswith(ext_suffix) == (limited_api is None)
 
 
 def test_limited_api_invalid_abi(tmp_path, capsys):
