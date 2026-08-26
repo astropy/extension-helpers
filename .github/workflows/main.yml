@@ -43,6 +43,7 @@ jobs:
 
         # Test downstream packages
         - linux: py313-downstream
+          coverage: ''
 
   publish:
     needs: tests
