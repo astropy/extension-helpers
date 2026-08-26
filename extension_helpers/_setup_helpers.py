@@ -141,6 +141,7 @@ def get_extensions(srcdir="."):
 
         extension.sources = sources
 
+    # setup.cfg and pyproject.toml are in the current directory, not in srcdir
     abi = get_limited_api_option(srcdir=".")
     if abi:
         version_info, version_hex = abi_to_versions(abi)
