@@ -11,6 +11,8 @@ concurrency:
 
 jobs:
   tests:
+    permissions:
+      id-token: write
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@22ddf09dfabb443adddfb9f861b7d41a787d6b1a  # v3.0.3
     with:
       posargs: --openmp-expected=True
