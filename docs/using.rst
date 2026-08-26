@@ -83,8 +83,11 @@ or in ``pyproject.toml``::
     [tool.setuptools.packages.find]
     where = ["src"]
 
-Note that automatic src layout discovery (without any explicit configuration)
-is not supported, so one of the above options needs to be set explicitly.
+If no packages configuration is given at all, extension-helpers mirrors
+`automatic discovery
+<https://setuptools.pypa.io/en/latest/userguide/package_discovery.html#automatic-discovery>`_
+in setuptools and uses the ``src`` directory if it exists, falling back to the
+project root otherwise.
 
 Python limited API
 ------------------
