@@ -2,7 +2,9 @@ import importlib
 import os
 import subprocess
 import sys
+import sysconfig
 import uuid
+import zipfile
 from textwrap import dedent
 
 import pytest
@@ -36,6 +38,7 @@ def test_get_compiler():
 def _extension_test_package(
     tmp_path,
     request=None,
+    src_layout=False,
     extension_type="c",
     include_numpy=False,
     include_setup_py=True,
@@ -43,15 +46,16 @@ def _extension_test_package(
     """Creates a simple test package with an extension module."""
 
     test_pkg = tmp_path / "test_pkg"
-    os.makedirs(test_pkg / "helpers_test_package")
-    (test_pkg / "helpers_test_package" / "__init__.py").touch()
+    src_dir = test_pkg / "src" if src_layout else test_pkg
+    os.makedirs(src_dir / "helpers_test_package")
+    (src_dir / "helpers_test_package" / "__init__.py").touch()
 
     # TODO: It might be later worth making this particular test package into a
     # reusable fixture for other build_ext tests
 
     if extension_type in ("c", "both"):
         # A minimal C extension for testing
-        (test_pkg / "helpers_test_package" / "unit01.c").write_text(dedent("""\
+        (src_dir / "helpers_test_package" / "unit01.c").write_text(dedent("""\
             #include <Python.h>
 
             static struct PyModuleDef moduledef = {
@@ -69,7 +73,7 @@ def _extension_test_package(
 
     if extension_type in ("pyx", "both"):
         # A minimal Cython extension for testing
-        (test_pkg / "helpers_test_package" / "unit02.pyx").write_text(dedent("""\
+        (src_dir / "helpers_test_package" / "unit02.pyx").write_text(dedent("""\
             print("Hello cruel angel.")
         """))
 
@@ -82,14 +86,16 @@ def _extension_test_package(
 
     include_dirs = ["numpy"] if include_numpy else []
 
+    pkg_dir = "'src', 'helpers_test_package'" if src_layout else "'helpers_test_package'"
+
     extensions_list = [
         f"Extension('helpers_test_package.{os.path.splitext(extension)[0]}', "
-        f"[join('helpers_test_package', '{extension}')], "
+        f"[join({pkg_dir}, '{extension}')], "
         f"{include_dirs=})"
         for extension in extensions
     ]
 
-    (test_pkg / "helpers_test_package" / "setup_package.py").write_text(dedent("""\
+    (src_dir / "helpers_test_package" / "setup_package.py").write_text(dedent("""\
         from setuptools import Extension
         from os.path import join
         def get_extensions():
@@ -97,6 +103,12 @@ def _extension_test_package(
     """.format(", ".join(extensions_list))))
 
     if include_setup_py:
+        if src_layout:
+            packages_args = "packages=find_packages('src'), package_dir={'': 'src'}"
+            extensions_args = "get_extensions('src')"
+        else:
+            packages_args = "packages=find_packages()"
+            extensions_args = "get_extensions()"
         (test_pkg / "setup.py").write_text(dedent(f"""\
             import sys
             from os.path import join
@@ -107,8 +119,8 @@ def _extension_test_package(
             setup(
                 name='helpers_test_package',
                 version='0.1',
-                packages=find_packages(),
-                ext_modules=get_extensions()
+                {packages_args},
+                ext_modules={extensions_args}
             )
         """))
 
@@ -413,18 +425,35 @@ def test_only_pyproject(tmp_path, pyproject_use_helpers):
 # Tests to make sure that limited API support works correctly
 
 
-@pytest.mark.parametrize("config", ("setup.cfg", "pyproject.toml"))
+@pytest.mark.parametrize("config", ("setup.cfg", "setup.py", "pyproject.toml"))
 @pytest.mark.parametrize("envvar", (False, True))
 @pytest.mark.parametrize("limited_api", (None, "cp310"))
 @pytest.mark.parametrize("extension_type", ("c", "pyx", "both"))
-def test_limited_api(tmp_path, config, envvar, limited_api, extension_type):
+@pytest.mark.parametrize("src_layout", (False, True))
+def test_limited_api(tmp_path, config, envvar, limited_api, extension_type, src_layout):
     pytest.importorskip("setuptools", minversion="65.4")
 
+    if src_layout and config != "setup.py":
+        pytest.skip("src layout is only supported when using setup.py")
+
     package = _extension_test_package(
-        tmp_path, extension_type=extension_type, include_numpy=True, include_setup_py=False
+        tmp_path,
+        extension_type=extension_type,
+        include_numpy=True,
+        include_setup_py=(config == "setup.py"),
+        src_layout=src_layout,
     )
 
-    if config == "setup.cfg":
+    if config == "setup.py":
+
+        if limited_api and not envvar:
+            (package / "setup.cfg").write_text(f"[bdist_wheel]\npy_limited_api={limited_api}")
+        elif envvar:
+            # Make sure if we are using the environment variable that it takes
+            # precedence over this setting (this only works for setup.cfg)
+            (package / "setup.cfg").write_text("[bdist_wheel]\npy_limited_api=cp35")
+
+    elif config == "setup.cfg":
 
         setup_cfg = dedent("""\
             [metadata]
@@ -446,18 +475,6 @@ def test_limited_api(tmp_path, config, envvar, limited_api, extension_type):
             setup_cfg += "\n[bdist_wheel]\npy_limited_api=cp35"
 
         (package / "setup.cfg").write_text(setup_cfg)
-
-        # Still require a minimal pyproject.toml file if no setup.py file
-
-        (package / "pyproject.toml").write_text(dedent("""
-            [build-system]
-            requires = ["setuptools>=43.0.0",
-                        "wheel"]
-            build-backend = 'setuptools.build_meta'
-
-            [tool.extension-helpers]
-            use_extension_helpers = true
-        """))
 
     elif config == "pyproject.toml":
 
@@ -483,6 +500,15 @@ def test_limited_api(tmp_path, config, envvar, limited_api, extension_type):
 
         (package / "pyproject.toml").write_text(pyproject_toml)
 
+    if config != "pyproject.toml":
+        # A minimal pyproject.toml file is still required
+        (package / "pyproject.toml").write_text(dedent("""
+            [build-system]
+            requires = ["setuptools>=43.0.0",
+                        "wheel"]
+            build-backend = 'setuptools.build_meta'
+        """))
+
     env = os.environ.copy()
 
     if envvar:
@@ -500,6 +526,16 @@ def test_limited_api(tmp_path, config, envvar, limited_api, extension_type):
 
     assert len(wheels) == 1
     assert ("abi3" in wheels[0]) == (limited_api is not None)
+
+    # The wheel tag above only reflects the bdist_wheel option, so also check
+    # that the extensions themselves were built for the limited API, in which
+    # case they don't use the default (version-specific) extension suffix
+    ext_suffix = sysconfig.get_config_var("EXT_SUFFIX")
+    with zipfile.ZipFile(package / "dist" / wheels[0]) as wheel:
+        ext_files = [f for f in wheel.namelist() if f.endswith((".so", ".pyd"))]
+    assert ext_files
+    for filename in ext_files:
+        assert filename.endswith(ext_suffix) == (limited_api is None)
 
 
 def test_limited_api_invalid_abi(tmp_path, capsys):
