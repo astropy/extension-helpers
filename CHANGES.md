@@ -1,3 +1,28 @@
+## v1.5.0 - 2026-09-15
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### New Features
+
+* Fix support for src/ layout even without `setup.py` by @astrofrog in https://github.com/astropy/extension-helpers/pull/161
+
+#### Bug Fixes
+
+* Fix incorrect path to _compiler.c for 'src' layout packages by @lpsinger in https://github.com/astropy/extension-helpers/pull/155
+* Look for setup.cfg in current directory, not srcdir by @lpsinger in https://github.com/astropy/extension-helpers/pull/157
+
+#### Other Changes
+
+* TST: fixup skip condition on limited-api test by @neutrinoceros in https://github.com/astropy/extension-helpers/pull/117
+* TST: Replace macos-13 with macos-14 by @pllim in https://github.com/astropy/extension-helpers/pull/121
+* MNT: drop deprecated License classifier, update related metadata (PEP 639) by @neutrinoceros in https://github.com/astropy/extension-helpers/pull/135
+* Fix test with recent versions of pip/build by @astrofrog in https://github.com/astropy/extension-helpers/pull/142
+* Switch to two-phase module initialization by @lpsinger in https://github.com/astropy/extension-helpers/pull/147
+* Define COVERAGE_FILE to try and fix coverage reporting by @astrofrog in https://github.com/astropy/extension-helpers/pull/159
+
+**Full Changelog**: https://github.com/astropy/extension-helpers/compare/v1.4.0...v1.5.0
+
 ## v1.4.0 - 2025-06-09
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
