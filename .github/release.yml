@@ -1,7 +1,8 @@
 changelog:
   exclude:
     authors:
-      - pre-commit-ci
+      - dependabot[bot]
+      - pre-commit-ci[bot]
   categories:
     - title: New Features
       labels:
