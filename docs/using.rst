@@ -66,6 +66,29 @@ the following configuration to the ``pyproject.toml`` file::
   For backwards compatibility, the setting of ``use_extension_helpers`` in
   ``setup.cfg`` will override any setting of it in ``pyproject.toml``.
 
+If your package uses a `src layout
+<https://setuptools.pypa.io/en/latest/userguide/package_discovery.html#src-layout>`_,
+extension-helpers will look for extensions in the source directory declared
+using the standard setuptools options, either in ``setup.cfg``::
+
+    [options]
+    package_dir =
+        = src
+
+    [options.packages.find]
+    where = src
+
+or in ``pyproject.toml``::
+
+    [tool.setuptools.packages.find]
+    where = ["src"]
+
+If no packages configuration is given at all, extension-helpers mirrors
+`automatic discovery
+<https://setuptools.pypa.io/en/latest/userguide/package_discovery.html#automatic-discovery>`_
+in setuptools and uses the ``src`` directory if it exists, falling back to the
+project root otherwise.
+
 Python limited API
 ------------------
 

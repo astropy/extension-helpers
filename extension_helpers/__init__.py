@@ -1,3 +1,4 @@
+import os
 import sys
 from configparser import ConfigParser
 
@@ -7,12 +8,42 @@ from ._utils import import_file, write_if_different  # noqa: F401
 from .version import version as __version__  # noqa: F401
 
 
+def _auto_srcdir():
+    # Mimic setuptools automatic discovery, which prefers src layout if src/ exists
+    return "src" if os.path.isdir("src") else "."
+
+
+def _get_srcdir_from_setup_cfg(cfg):
+    # The source root is the path mapped to the root package, e.g. "= src"
+    if cfg.has_option("options", "package_dir"):
+        for mapping in cfg.get("options", "package_dir").replace(",", "\n").splitlines():
+            package, sep, path = mapping.partition("=")
+            if sep and package.strip() == "":
+                return path.strip()
+    # Any explicit packages configuration disables automatic discovery
+    if cfg.has_option("options", "packages"):
+        return "."
+    return _auto_srcdir()
+
+
+def _get_srcdir_from_pyproject(pyproject_cfg):
+    setuptools_cfg = pyproject_cfg.get("tool", {}).get("setuptools", {})
+    if "" in setuptools_cfg.get("package-dir", {}):
+        return setuptools_cfg["package-dir"][""]
+    packages = setuptools_cfg.get("packages", {})
+    if isinstance(packages, dict) and packages.get("find", {}).get("where"):
+        return packages["find"]["where"][0]
+    # Any explicit packages configuration disables automatic discovery
+    if "packages" in setuptools_cfg or "package-dir" in setuptools_cfg:
+        return "."
+    return _auto_srcdir()
+
+
 def _finalize_distribution_hook(distribution):
     """
     Entry point for setuptools which allows extension-helpers to be enabled
     from setup.cfg without the need for setup.py.
     """
-    import os
     from pathlib import Path
 
     if sys.version_info >= (3, 11):
@@ -29,7 +60,7 @@ def _finalize_distribution_hook(distribution):
         if cfg.has_option("extension-helpers", "use_extension_helpers"):
             found_config = True
             if cfg.get("extension-helpers", "use_extension_helpers").lower() == "true":
-                distribution.ext_modules = get_extensions()
+                distribution.ext_modules = get_extensions(_get_srcdir_from_setup_cfg(cfg))
 
     pyproject = Path(distribution.src_root or os.curdir, "pyproject.toml")
     if pyproject.exists() and not found_config:
@@ -41,4 +72,4 @@ def _finalize_distribution_hook(distribution):
                 and "use_extension_helpers" in pyproject_cfg["tool"]["extension-helpers"]
                 and pyproject_cfg["tool"]["extension-helpers"]["use_extension_helpers"]
             ):
-                distribution.ext_modules = get_extensions()
+                distribution.ext_modules = get_extensions(_get_srcdir_from_pyproject(pyproject_cfg))

@@ -433,9 +433,6 @@ def test_only_pyproject(tmp_path, pyproject_use_helpers):
 def test_limited_api(tmp_path, config, envvar, limited_api, extension_type, src_layout):
     pytest.importorskip("setuptools", minversion="65.4")
 
-    if src_layout and config != "setup.py":
-        pytest.skip("src layout is only supported when using setup.py")
-
     package = _extension_test_package(
         tmp_path,
         extension_type=extension_type,
@@ -455,13 +452,18 @@ def test_limited_api(tmp_path, config, envvar, limited_api, extension_type, src_
 
     elif config == "setup.cfg":
 
-        setup_cfg = dedent("""\
+        setup_cfg = dedent(f"""\
             [metadata]
             name = helpers_test_package
             version = 0.1
 
             [options]
             packages = find:
+            package_dir =
+                = {'src' if src_layout else '.'}
+
+            [options.packages.find]
+            where = {'src' if src_layout else '.'}
 
             [extension-helpers]
             use_extension_helpers = true
@@ -478,7 +480,7 @@ def test_limited_api(tmp_path, config, envvar, limited_api, extension_type, src_
 
     elif config == "pyproject.toml":
 
-        pyproject_toml = dedent("""\
+        pyproject_toml = dedent(f"""\
             [build-system]
             requires = ["setuptools>=43.0.0",
                         "wheel"]
@@ -488,8 +490,9 @@ def test_limited_api(tmp_path, config, envvar, limited_api, extension_type, src_
             name = "helpers_test_package"
             version = "0.1"
 
-            [tool.setuptools.packages]
-            find = {namespaces = false}
+            [tool.setuptools.packages.find]
+            where = ["{'src' if src_layout else '.'}"]
+            namespaces = false
 
             [tool.extension-helpers]
             use_extension_helpers = true
@@ -536,6 +539,45 @@ def test_limited_api(tmp_path, config, envvar, limited_api, extension_type, src_
     assert ext_files
     for filename in ext_files:
         assert filename.endswith(ext_suffix) == (limited_api is None)
+
+
+@pytest.mark.parametrize("src_layout", (False, True))
+def test_automatic_layout_discovery(tmp_path, src_layout):
+    """
+    Test building a package with no explicit packages configuration, relying
+    on setuptools automatic discovery of flat and src layouts.
+    """
+
+    pytest.importorskip("setuptools", minversion="61.0")
+
+    package = _extension_test_package(
+        tmp_path,
+        extension_type="c",
+        include_numpy=True,
+        include_setup_py=False,
+        src_layout=src_layout,
+    )
+
+    (package / "pyproject.toml").write_text(dedent("""\
+        [build-system]
+        requires = ["setuptools>=61.0", "wheel"]
+        build-backend = 'setuptools.build_meta'
+
+        [project]
+        name = "helpers_test_package"
+        version = "0.1"
+
+        [tool.extension-helpers]
+        use_extension_helpers = true
+    """))
+
+    with chdir(package):
+        subprocess.run([sys.executable, "-m", "build", "--wheel", "--no-isolation"], check=True)
+
+    wheels = os.listdir(package / "dist")
+    assert len(wheels) == 1
+    with zipfile.ZipFile(package / "dist" / wheels[0]) as wheel:
+        assert [f for f in wheel.namelist() if f.endswith((".so", ".pyd"))]
 
 
 def test_limited_api_invalid_abi(tmp_path, capsys):

@@ -61,6 +61,9 @@ def get_extensions(srcdir="."):
     # Use the find_packages tool to locate all packages and modules
     packages = find_packages(srcdir)
 
+    if not packages:
+        log.warning(f"No packages found in srcdir={srcdir!r}, so no extensions will be collected")
+
     # Update package_dir if the package lies in a subdirectory
     if srcdir != ".":
         package_dir[""] = srcdir
