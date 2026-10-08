@@ -138,6 +138,7 @@ ignore = [
     "PP006", # ignore defining dev dependency group
     "PP304", # ignore setting log_level in pytest
     "PY005", # ignore having a tests/ folder
+    "SEC001", # ignore using zizmor in pre-commit
 ]
 
 [tool.ruff]
