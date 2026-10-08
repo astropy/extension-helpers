@@ -3,11 +3,14 @@
 import os
 import re
 import sys
+import sysconfig
 import tempfile
 from configparser import ConfigParser
 from importlib import machinery as import_machinery
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
+
+from packaging import tags
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -157,8 +160,20 @@ def get_limited_api_option(srcdir):
 
     py_limited_api = os.environ.get("EXTENSION_HELPERS_PY_LIMITED_API")
 
-    if py_limited_api is not None:
+    if py_limited_api == "auto":
+        template = "{interpreter}-{abi}-{platform}"
+        interpreter_id = f"{tags.interpreter_name()}{tags.interpreter_version()}"
+        abi3_tag = template.format(
+            interpreter=interpreter_id,
+            abi="abi3",
+            platform=sysconfig.get_platform(),
+        )
+        if abi3_tag in tags.compatible_tags():
+            py_limited_api = interpreter_id
+        else:
+            py_limited_api = None
 
+    if py_limited_api is not None:
         if "DIST_EXTRA_CONFIG" in os.environ:
             raise ValueError(
                 "Cannot use EXTENSION_HELPERS_PY_LIMITED_API if DIST_EXTRA_CONFIG is already defined"

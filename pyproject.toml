@@ -18,6 +18,7 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
+    "packaging>=25.0",
     "setuptools>=64",
     "tomli>=1.0.0 ; python_version < '3.11'",
 ]
