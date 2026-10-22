@@ -13,7 +13,7 @@ jobs:
   tests:
     permissions:
       id-token: write
-    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@3a3dcf3ba6828dac29eba10334948ef38364ed14  # v3.1.0
+    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@8d5ad7efc8e84a051639373f6ea0d10441eafee1  # v3.2.1
     with:
       posargs: --openmp-expected=True
       coverage: codecov-oidc
@@ -47,7 +47,7 @@ jobs:
 
   publish:
     needs: tests
-    uses: OpenAstronomy/github-actions-workflows/.github/workflows/publish_pure_python.yml@3a3dcf3ba6828dac29eba10334948ef38364ed14  # v3.1.0
+    uses: OpenAstronomy/github-actions-workflows/.github/workflows/publish_pure_python.yml@8d5ad7efc8e84a051639373f6ea0d10441eafee1  # v3.2.1
     with:
       test_extras: test
       test_command: pytest --pyargs extension_helpers
