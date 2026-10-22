@@ -3,11 +3,17 @@
 import os
 import re
 import sys
+import sysconfig
 import tempfile
 from configparser import ConfigParser
 from importlib import machinery as import_machinery
+from importlib.metadata import version
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
+from typing import Literal
+
+from packaging import tags
+from packaging.version import Version
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -149,6 +155,34 @@ def import_file(filename, name=None):
     return mod
 
 
+def is_cpython() -> bool:
+    return tags.interpreter_name() == "cp"
+
+
+def is_free_threading() -> bool:
+    return sysconfig.get_config_var("Py_GIL_DISABLED") is not None
+
+
+def has_pep_803_support() -> bool:
+    return Version(version("setuptools")) >= Version("84.2.0")
+
+
+def stable_abi_tag() -> Literal["abi3", "abi3.abi3t"]:
+    if not is_cpython():
+        raise RuntimeError("Limited API builds are only supported for CPython")
+    if is_free_threading():
+        if sys.version_info >= (3, 15) and has_pep_803_support():
+            return "abi3.abi3t"
+        else:
+            raise RuntimeError(
+                "Free-threading Limited API builds require"
+                f"python >=3.15.0 (found {sys.version}) "
+                f"and setuptools >=84.2.0 (found {version('setuptools')})"
+            )
+    else:
+        return "abi3"
+
+
 def get_limited_api_option(srcdir):
     """
     Checks setup.cfg and pyproject.toml files in the current directory
@@ -157,8 +191,20 @@ def get_limited_api_option(srcdir):
 
     py_limited_api = os.environ.get("EXTENSION_HELPERS_PY_LIMITED_API")
 
-    if py_limited_api is not None:
+    if py_limited_api == "auto":
+        template = "{interpreter}-{abi}-{platform}"
+        interpreter_id = f"{tags.interpreter_name()}{tags.interpreter_version()}"
+        abi_tag = template.format(
+            interpreter=interpreter_id,
+            abi=stable_abi_tag(),
+            platform=sysconfig.get_platform(),
+        )
+        if abi_tag in tags.compatible_tags():
+            py_limited_api = interpreter_id
+        else:
+            raise RuntimeError
 
+    if py_limited_api is not None:
         if "DIST_EXTRA_CONFIG" in os.environ:
             raise ValueError(
                 "Cannot use EXTENSION_HELPERS_PY_LIMITED_API if DIST_EXTRA_CONFIG is already defined"
