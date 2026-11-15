@@ -36,7 +36,7 @@ jobs:
 
         # Test with more compilers, for the OpenMP helpers
         - macos: py313-test-osxclang-conda
-          runs-on: macos-14
+          runs-on: macos-15
           coverage: ''
         - linux: py310-test-linuxgcc-conda
           coverage: ''
